@@ -8,40 +8,20 @@ import 'package:flame/collisions.dart';
 import 'package:flame/effects.dart';
 import 'dart:ui';
 import 'dart:async';
-import '../models/direction.dart';
 import '../player/player_component.dart';
 
 class PointObject extends SpriteComponent with HasGameRef, CollisionCallbacks {
-  PointObject({
-    required Vector2 position,
-    required Vector2 size,
-  }) : super(
-          position: position,
-          size: size,
-          anchor: Anchor.center,
-        );
+  PointObject({required Vector2 position, required Vector2 size})
+      : super(position: position, size: size, anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     sprite = Sprite(await game.images.load('point_image.png'));
-
-    add(
-      RectangleHitbox(
-        size: size,
-        position: Vector2.zero(),
-        anchor: Anchor.center,
-      ),
-    );
-
+    add(RectangleHitbox(size: size, position: Vector2.zero(), anchor: Anchor.center));
     add(
       ScaleEffect.by(
         Vector2.all(1.2),
-        EffectController(
-          duration: 0.5,
-          reverseDuration: 0.5,
-          infinite: true,
-          alternate: true,
-        ),
+        EffectController(duration: 0.5, reverseDuration: 0.5, infinite: true, alternate: true),
       ),
     );
   }
@@ -49,10 +29,8 @@ class PointObject extends SpriteComponent with HasGameRef, CollisionCallbacks {
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-
     if (other is PlayerComponent) {
       removeFromParent();
-      (game as Level2Game).pointObjects.remove(this);
       (game as Level2Game).collectPoint();
     }
   }
@@ -70,112 +48,340 @@ class LevelCompleteOverlay extends flutter.StatelessWidget {
 
   @override
   flutter.Widget build(flutter.BuildContext context) {
+    final screenSize = flutter.MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 400;
+    
     return flutter.Material(
-      color: flutter.Colors.black.withOpacity(0.5),
+      color: flutter.Colors.black.withOpacity(0.6),
       child: flutter.Center(
-        child: flutter.Container(
-          width: flutter.MediaQuery.of(context).size.width * 0.9,
-          padding: const flutter.EdgeInsets.all(20),
-          decoration: flutter.BoxDecoration(
-            color: flutter.Colors.white,
-            borderRadius: flutter.BorderRadius.circular(20),
-            boxShadow: [
-              flutter.BoxShadow(
-                color: flutter.Colors.black.withOpacity(0.3),
-                blurRadius: 10,
-                spreadRadius: 2,
-              )
-            ],
-          ),
-          child: flutter.SingleChildScrollView(
+        child: flutter.SingleChildScrollView(
+          padding: const flutter.EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: flutter.Container(
+            width: screenSize.width > 600 ? 550 : screenSize.width * 0.9,
+            padding: flutter.EdgeInsets.all(isSmallScreen ? 16 : 20),
+            decoration: flutter.BoxDecoration(
+              color: const flutter.Color(0xFFD6C6A8),
+              borderRadius: flutter.BorderRadius.circular(15),
+              boxShadow: [
+                flutter.BoxShadow(
+                  color: flutter.Colors.black.withOpacity(0.4),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
             child: flutter.Column(
               mainAxisSize: flutter.MainAxisSize.min,
               children: [
-
-                const flutter.Text(
-                  'LEVEL 3 COMPLETED!',
+                flutter.Text(
+                  'Level 2 Completed!',
                   style: flutter.TextStyle(
-                    fontSize: 24,
+                    fontSize: isSmallScreen ? 24 : 28,
                     fontWeight: flutter.FontWeight.bold,
-                    color: flutter.Colors.green,
+                    fontFamily: 'Serif',
+                    color: flutter.Colors.black,
                   ),
+                  textAlign: flutter.TextAlign.center,
                 ),
-
-                // Batik Image
+                const flutter.SizedBox(height: 15),
+                const flutter.Divider(
+                  color: flutter.Color(0xFF8D7B63),
+                  thickness: 1.5,
+                  height: 10,
+                ),
                 flutter.Container(
-                  height: 200, // Increased height to show more of the image
-                  width: double.infinity,
-                  margin: const flutter.EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                  decoration: flutter.BoxDecoration(
-                    borderRadius: flutter.BorderRadius.circular(10),
-                    image: const flutter.DecorationImage(
+                  height: screenSize.height * 0.15,
+                  width: screenSize.width * 0.5,
+                  margin: flutter.EdgeInsets.symmetric(vertical: isSmallScreen ? 10 : 15),
+                  decoration: const flutter.BoxDecoration(
+                    image: flutter.DecorationImage(
                       image: flutter.AssetImage('assets/images/batik_mega_mendung.png'),
-                      fit: flutter.BoxFit.contain, // Changed from fitWidth to contain
+                      fit: flutter.BoxFit.contain,
                     ),
                   ),
                 ),
-                const flutter.SizedBox(height: 20),
-                
-                const flutter.SizedBox(height: 20),
-                const flutter.Text(
-                'Materi Batik: Motif Mega Mendung',                  textAlign: flutter.TextAlign.center,
-                  style: flutter.TextStyle(
-                    fontSize: 20,
-                    fontWeight: flutter.FontWeight.bold,
-                    color: flutter.Colors.deepOrange,
-                  ),
-                ),
-                const flutter.SizedBox(height: 15),
-                const flutter.Text(
+                const flutter.SizedBox(height: 10),
+                flutter.Text(
                   'Motif Mega Mendung berasal dari Cirebon dan menggambarkan awan pembawa hujan. '
                   'Batik ini memiliki makna kesabaran dan tidak mudah marah. Warna dominannya '
                   'biru dengan gradasi yang indah, melambangkan langit yang luas.',
                   textAlign: flutter.TextAlign.center,
                   style: flutter.TextStyle(
-                    fontSize: 16,
+                    fontSize: isSmallScreen ? 13 : 14,
+                    height: 1.4,
+                    color: flutter.Colors.black87,
                   ),
                 ),
-                const flutter.SizedBox(height: 20),
-                const flutter.Text(
-                  'Di Level 3, Anda akan diminta pertanyaan seputar batik ini!',
-                  textAlign: flutter.TextAlign.center,
-                  style: flutter.TextStyle(
-                    fontSize: 16,
-                    fontStyle: flutter.FontStyle.italic,
-                  ),
-                ),
-                const flutter.SizedBox(height: 30),
-                flutter.Row(
-                  mainAxisAlignment: flutter.MainAxisAlignment.center,
+                flutter.SizedBox(height: isSmallScreen ? 20 : 25),
+                flutter.Wrap(
+                  alignment: flutter.WrapAlignment.spaceEvenly,
+                  spacing: 10,
+                  runSpacing: 10,
                   children: [
-                    // Back to Menu Button
-                    flutter.ElevatedButton(
-                      onPressed: onBackPressed,
-                      style: flutter.ElevatedButton.styleFrom(
-                        backgroundColor: flutter.Colors.orangeAccent,
-                        foregroundColor: flutter.Colors.white,
-                        padding: const flutter.EdgeInsets.symmetric(
-                          horizontal: 20, 
-                          vertical: 15,
+                    // Back Button
+                    flutter.SizedBox(
+                      width: isSmallScreen ? screenSize.width * 0.35 : 140,
+                      child: flutter.ElevatedButton(
+                        onPressed: onBackPressed,
+                        style: flutter.ElevatedButton.styleFrom(
+                          backgroundColor: const flutter.Color(0xFFCFC5B4),
+                          foregroundColor: flutter.Colors.black,
+                          padding: flutter.EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 15 : 30, 
+                            vertical: 12
+                          ),
+                          shape: flutter.RoundedRectangleBorder(
+                            borderRadius: flutter.BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: flutter.Text(
+                          'BACK',
+                          style: flutter.TextStyle(
+                            fontSize: isSmallScreen ? 13 : 14,
+                            fontWeight: flutter.FontWeight.bold,
+                          ),
                         ),
                       ),
-                      child: const flutter.Text('MENU UTAMA'),
                     ),
-                    const flutter.SizedBox(width: 20),
-                    // Continue to Level 2 Button
-                    flutter.ElevatedButton(
-                      onPressed: onContinuePressed,
-                      style: flutter.ElevatedButton.styleFrom(
-                        backgroundColor: flutter.Colors.green,
-                        foregroundColor: flutter.Colors.white,
-                        padding: const flutter.EdgeInsets.symmetric(
-                          horizontal: 20, 
-                          vertical: 15,
+                    // Next Level Button
+                    flutter.SizedBox(
+                      width: isSmallScreen ? screenSize.width * 0.35 : 140,
+                      child: flutter.ElevatedButton(
+                        onPressed: onContinuePressed,
+                        style: flutter.ElevatedButton.styleFrom(
+                          backgroundColor: const flutter.Color(0xFFCFC5B4),
+                          foregroundColor: flutter.Colors.black,
+                          padding: flutter.EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 15 : 30, 
+                            vertical: 12
+                          ),
+                          shape: flutter.RoundedRectangleBorder(
+                            borderRadius: flutter.BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: flutter.Text(
+                          'NEXT LEVEL',
+                          style: flutter.TextStyle(
+                            fontSize: isSmallScreen ? 13 : 14,
+                            fontWeight: flutter.FontWeight.bold,
+                          ),
                         ),
                       ),
-                      child: const flutter.Text('LANJUT LEVEL 3'),
                     ),
                   ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BatikQuestionOverlay extends flutter.StatelessWidget {
+  final flutter.TextEditingController answerController;
+  final VoidCallback onContinuePressed;
+  final VoidCallback onBackPressed;
+
+  const BatikQuestionOverlay({
+    super.key,
+    required this.answerController,
+    required this.onContinuePressed,
+    required this.onBackPressed,
+  });
+
+  @override
+  flutter.Widget build(flutter.BuildContext context) {
+    final screenSize = flutter.MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 400;
+    final safePadding = flutter.MediaQuery.of(context).padding;
+
+    return flutter.Material(
+      color: const flutter.Color(0xFFD9C9A9),
+      child: flutter.Center(
+        child: flutter.SingleChildScrollView(
+          padding: flutter.EdgeInsets.only(
+            top: safePadding.top + 10,
+            bottom: safePadding.bottom + 10,
+            left: 16,
+            right: 16,
+          ),
+          child: flutter.Container(
+            width: screenSize.width > 600 ? 550 : screenSize.width * 0.95,
+            padding: flutter.EdgeInsets.symmetric(
+              vertical: isSmallScreen ? 16 : 20,
+              horizontal: isSmallScreen ? 16 : 20,
+            ),
+            child: flutter.Column(
+              mainAxisAlignment: flutter.MainAxisAlignment.center,
+              mainAxisSize: flutter.MainAxisSize.min,
+              children: [
+                flutter.Text(
+                  'QUIZ',
+                  style: flutter.TextStyle(
+                    fontSize: isSmallScreen ? 28 : 32,
+                    fontWeight: flutter.FontWeight.bold,
+                    color: flutter.Colors.black,
+                  ),
+                ),
+                flutter.Container(
+                  height: 8,
+                  width: screenSize.width * (isSmallScreen ? 0.7 : 0.6),
+                  decoration: const flutter.BoxDecoration(
+                    color: flutter.Colors.black12,
+                  ),
+                ),
+                flutter.SizedBox(height: isSmallScreen ? 15 : 20),
+
+                // Batik Image
+                flutter.Container(
+                  height: screenSize.height * 0.15,
+                  width: screenSize.width * 0.45,
+                  decoration: flutter.BoxDecoration(
+                    borderRadius: flutter.BorderRadius.circular(12),
+                    image: const flutter.DecorationImage(
+                      image: flutter.AssetImage('assets/images/batik_parang.png'),
+                      fit: flutter.BoxFit.cover,
+                    ),
+                  ),
+                ),
+
+                flutter.SizedBox(height: isSmallScreen ? 15 : 20),
+                flutter.Text(
+                  'Jawab pertanyaan berikut untuk memulai Level 2',
+                  textAlign: flutter.TextAlign.center,
+                  style: flutter.TextStyle(
+                    fontSize: isSmallScreen ? 14 : 16,
+                  ),
+                ),
+
+                flutter.SizedBox(height: isSmallScreen ? 12 : 15),
+                flutter.Text(
+                  'Apa makna filosofi dari motif Batik Parang?',
+                  textAlign: flutter.TextAlign.center,
+                  style: flutter.TextStyle(
+                    fontSize: isSmallScreen ? 16 : 18,
+                    fontWeight: flutter.FontWeight.bold,
+                    color: flutter.Colors.blue,
+                  ),
+                ),
+
+                flutter.SizedBox(height: isSmallScreen ? 12 : 15),
+                flutter.Container(
+                  padding: const flutter.EdgeInsets.symmetric(horizontal: 5),
+                  decoration: flutter.BoxDecoration(
+                    color: flutter.Colors.white,
+                    border: flutter.Border.all(color: flutter.Colors.grey.shade300),
+                    borderRadius: flutter.BorderRadius.circular(5),
+                  ),
+                  child: flutter.TextField(
+                    controller: answerController,
+                    decoration: const flutter.InputDecoration(
+                      hintText: 'Jawaban anda',
+                      border: flutter.InputBorder.none,
+                    ),
+                  ),
+                ),
+
+                const flutter.SizedBox(height: 10),
+                flutter.Row(
+                  mainAxisAlignment: flutter.MainAxisAlignment.end,
+                  children: [
+                    flutter.Flexible(
+                      child: flutter.Text(
+                        'Petunjuk : Berhubungan dengan kesinambungan hidup',
+                        style: flutter.TextStyle(
+                          fontSize: isSmallScreen ? 12 : 14,
+                          fontStyle: flutter.FontStyle.italic,
+                        ),
+                        textAlign: flutter.TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+
+                flutter.SizedBox(height: isSmallScreen ? 20 : 25),
+                flutter.LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 350;
+
+                    if (isNarrow) {
+                      // Kalau layar sempit, tombol ditumpuk ke bawah
+                      return flutter.Column(
+                        children: [
+                          flutter.SizedBox(
+                            width: double.infinity,
+                            child: flutter.ElevatedButton(
+                              onPressed: onBackPressed,
+                              style: flutter.ElevatedButton.styleFrom(
+                                backgroundColor: flutter.Colors.grey.shade300,
+                                foregroundColor: flutter.Colors.black,
+                                minimumSize: const flutter.Size(120, 45),
+                              ),
+                              child: const flutter.Text(
+                                'BACK',
+                                style: flutter.TextStyle(fontWeight: flutter.FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          const flutter.SizedBox(height: 10),
+                          flutter.SizedBox(
+                            width: double.infinity,
+                            child: flutter.ElevatedButton(
+                              onPressed: onContinuePressed,
+                              style: flutter.ElevatedButton.styleFrom(
+                                backgroundColor: flutter.Colors.white,
+                                foregroundColor: flutter.Colors.black,
+                                minimumSize: const flutter.Size(120, 45),
+                              ),
+                              child: const flutter.Text(
+                                'START',
+                                style: flutter.TextStyle(fontWeight: flutter.FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      // Kalau lebar cukup, tombol berjejer
+                      return flutter.Row(
+                        mainAxisAlignment: flutter.MainAxisAlignment.spaceEvenly,
+                        children: [
+                          flutter.SizedBox(
+                            width: 120,
+                            child: flutter.ElevatedButton(
+                              onPressed: onBackPressed,
+                              style: flutter.ElevatedButton.styleFrom(
+                                backgroundColor: flutter.Colors.grey.shade300,
+                                foregroundColor: flutter.Colors.black,
+                                minimumSize: const flutter.Size(120, 45),
+                              ),
+                              child: const flutter.Text(
+                                'BACK',
+                                style: flutter.TextStyle(fontWeight: flutter.FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          flutter.SizedBox(
+                            width: 120,
+                            child: flutter.ElevatedButton(
+                              onPressed: onContinuePressed,
+                              style: flutter.ElevatedButton.styleFrom(
+                                backgroundColor: flutter.Colors.white,
+                                foregroundColor: flutter.Colors.black,
+                                minimumSize: const flutter.Size(120, 45),
+                              ),
+                              child: const flutter.Text(
+                                'START',
+                                style: flutter.TextStyle(fontWeight: flutter.FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -226,7 +432,7 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
             GameWidget(
               game: game,
               overlayBuilderMap: {
-                'LevelCompleteOverlay': (context, game) => LevelCompleteOverlay(
+                'Leve2CompleteOverlay': (context, game) => LevelCompleteOverlay(
                   onBackPressed: () => flutter.Navigator.pop(context),
                   onContinuePressed: () {}, // Handle level completion
                 ),
@@ -273,203 +479,25 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
   }
 }
 
-class BatikQuestionOverlay extends flutter.StatelessWidget {
-  final flutter.TextEditingController answerController;
-  final VoidCallback onContinuePressed;
-  final VoidCallback onBackPressed;
-
-  const BatikQuestionOverlay({
-    super.key,
-    required this.answerController,
-    required this.onContinuePressed,
-    required this.onBackPressed,
-  });
-
-  @override
-  flutter.Widget build(flutter.BuildContext context) {
-    return flutter.Material(
-      color: flutter.Colors.black.withOpacity(0.5),
-      child: flutter.Center(
-        child: flutter.Container(
-          width: flutter.MediaQuery.of(context).size.width * 0.9,
-          padding: const flutter.EdgeInsets.all(20),
-          decoration: flutter.BoxDecoration(
-            color: flutter.Colors.white,
-            borderRadius: flutter.BorderRadius.circular(20),
-            boxShadow: [
-              flutter.BoxShadow(
-                color: flutter.Colors.black.withOpacity(0.3),
-                blurRadius: 10,
-                spreadRadius: 2,
-              )
-            ],
-          ),
-          child: flutter.SingleChildScrollView(
-            child: flutter.Column(
-              mainAxisSize: flutter.MainAxisSize.min,
-              children: [
-                const flutter.Text(
-                  'KUIS BATIK PARANG',
-                  style: flutter.TextStyle(
-                    fontSize: 24,
-                    fontWeight: flutter.FontWeight.bold,
-                    color: flutter.Colors.deepOrange,
-                  ),
-                ),
-                const flutter.SizedBox(height: 20),
-                
-                flutter.Container(
-                  height: 180,
-                  width: double.infinity,
-                  margin: const flutter.EdgeInsets.symmetric(vertical: 10),
-                  decoration: flutter.BoxDecoration(
-                    borderRadius: flutter.BorderRadius.circular(10),
-                    image: const flutter.DecorationImage(
-                      image: flutter.AssetImage('assets/images/batik_parang.png'),
-                      fit: flutter.BoxFit.contain,
-                    ),
-                  ),
-                ),
-                
-                const flutter.SizedBox(height: 20),
-                const flutter.Text(
-                  'Jawab pertanyaan berikut tentang Batik Parang\nuntuk memulai Level 2:',
-                  textAlign: flutter.TextAlign.center,
-                  style: flutter.TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                const flutter.SizedBox(height: 20),
-                
-                const flutter.Text(
-                  'Apa makna filosofi dari motif Batik Parang?',
-                  textAlign: flutter.TextAlign.center,
-                  style: flutter.TextStyle(
-                    fontSize: 18,
-                    fontWeight: flutter.FontWeight.bold,
-                    color: flutter.Colors.blue,
-                  ),
-                ),
-                const flutter.SizedBox(height: 15),
-                
-                flutter.TextField(
-                  controller: answerController,
-                  decoration: const flutter.InputDecoration(
-                    border: flutter.OutlineInputBorder(),
-                    labelText: 'Jawaban Anda',
-                    hintText: 'Masukkan makna filosofi',
-                  ),
-                ),
-                const flutter.SizedBox(height: 10),
-                const flutter.Text(
-                  'Petunjuk: Berhubungan dengan kesinambungan hidup',
-                  style: flutter.TextStyle(
-                    fontSize: 14,
-                    fontStyle: flutter.FontStyle.italic,
-                    color: flutter.Colors.grey,
-                  ),
-                ),
-                
-                const flutter.SizedBox(height: 25),
-                flutter.Row(
-                  mainAxisAlignment: flutter.MainAxisAlignment.center,
-                  children: [
-                    flutter.ElevatedButton(
-                      onPressed: onBackPressed,
-                      style: flutter.ElevatedButton.styleFrom(
-                        backgroundColor: flutter.Colors.orangeAccent,
-                        foregroundColor: flutter.Colors.white,
-                      ),
-                      child: const flutter.Text('KEMBALI'),
-                    ),
-                    const flutter.SizedBox(width: 20),
-                    flutter.ElevatedButton(
-                      onPressed: onContinuePressed,
-                      style: flutter.ElevatedButton.styleFrom(
-                        backgroundColor: flutter.Colors.green,
-                        foregroundColor: flutter.Colors.white,
-                      ),
-                      child: const flutter.Text('MULAI LEVEL 2'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-  @override
-  flutter.Widget build(flutter.BuildContext context) {
-    final game = Level2Game();
-    
-    return flutter.Scaffold(
-      body: flutter.Stack(
-        children: [
-          GameWidget(
-            game: game,
-            overlayBuilderMap: {
-              'LevelCompleteOverlay': (flutter.BuildContext context, Level2Game game) {
-                return LevelCompleteOverlay(
-                  onBackPressed: () {
-                    game.overlays.remove('LevelCompleteOverlay');
-                    flutter.Navigator.pop(context);
-                  },
-                  onContinuePressed: () {
-                    game.overlays.remove('LevelCompleteOverlay');
-                    // Navigate to Level 3
-                    // flutter.Navigator.pushReplacement(
-                    //   context,
-                    //   flutter.MaterialPageRoute(
-                    //     builder: (context) => const Level3Screen(),
-                    //   ),
-                    // );
-                  },
-                );
-              },
-            },
-          ),
-          flutter.Positioned(
-            top: 20,
-            left: 20,
-            child: flutter.ElevatedButton(
-              onPressed: () => flutter.Navigator.pop(context),
-              style: flutter.ElevatedButton.styleFrom(
-                backgroundColor: flutter.Colors.orangeAccent,
-                foregroundColor: flutter.Colors.white,
-              ),
-              child: const flutter.Text('Kembali'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
 class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection {
   late final TiledComponent map;
   PlayerComponent? player;
-  Direction playerDirection = Direction.idle;
   late final JoystickComponent joystick;
   final List<RectangleHitbox> collisionBlocks = [];
-  final List<PointObject> pointObjects = [];
   int totalPoints = 0;
   int collectedPoints = 0;
   bool _levelCompleted = false;
 
   static const double tileSize = 64.0;
   late final Vector2 mapDimensions;
-  final Vector2 playerStartPosition = Vector2(900, 210);
+  final Vector2 playerStartPosition = Vector2(1350, 250);
   final Vector2 playerSize = Vector2(64, 96);
 
   void collectPoint() {
     collectedPoints++;
     if (collectedPoints >= totalPoints && !_levelCompleted) {
       _levelCompleted = true;
-      overlays.add('LevelCompleteOverlay');
+      overlays.add('Leve2CompleteOverlay');
     }
   }
 
@@ -478,113 +506,115 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection {
     await super.onLoad();
 
     try {
-      map = await TiledComponent.load('level2.tmx', Vector2.all(tileSize));
-      world.add(map);
-
-      mapDimensions = Vector2(
-        map.tileMap.map.width * tileSize,
-        map.tileMap.map.height * tileSize,
-      );
-
+      // Load map and initialize game components
+      await _loadMap();
       await _extractCollisionObjects();
       await _extractPointObjects();
-
-      final spriteSheet = SpriteSheet(
-        image: await images.load('character_walk.png'),
-        srcSize: Vector2(104, 150),
-      );
-
-      player = PlayerComponent(
-        spriteSheet: spriteSheet,
-        position: playerStartPosition,
-        size: playerSize,
-      );
-
-      final playerHitbox = RectangleHitbox(
-        size: Vector2(playerSize.x * 0.6, playerSize.y * 0.3),
-        position: Vector2(playerSize.x * 0.2, playerSize.y * 0.7),
-      );
-      player!.add(playerHitbox);
-
-      world.add(player!);
-
-      camera.viewfinder.anchor = Anchor.center;
-      if (player != null) {
-        camera.follow(player!);
-      }
-
-      final knobPaint = Paint()..color = flutter.Colors.blue.withOpacity(0.8);
-      final backgroundPaint = Paint()..color = flutter.Colors.blueGrey.withOpacity(0.5);
-
-      joystick = JoystickComponent(
-        knob: CircleComponent(radius: 20, paint: knobPaint),
-        background: CircleComponent(radius: 60, paint: backgroundPaint),
-        position: Vector2(100, size.y - 100),
-      );
-
-      camera.viewport.add(joystick);
+      await _createPlayer();
+      _setupCamera();
+      _setupJoystick();
     } catch (e) {
       print('Error during loading: $e');
     }
   }
 
+  Future<void> _loadMap() async {
+    map = await TiledComponent.load('level2.tmx', Vector2.all(tileSize));
+    world.add(map);
+
+    mapDimensions = Vector2(
+      map.tileMap.map.width * tileSize,
+      map.tileMap.map.height * tileSize,
+    );
+  }
+
+  Future<void> _createPlayer() async {
+    final spriteSheet = SpriteSheet(
+      image: await images.load('Pokemon.png'),
+      srcSize: Vector2(64, 64),
+    );
+
+    player = PlayerComponent(
+      spriteSheet: spriteSheet,
+      position: playerStartPosition,
+      size: playerSize,
+    );
+
+    // Set collision blocks and map dimensions
+    player!.setCollisionBlocks(collisionBlocks);
+    player!.setMapDimensions(mapDimensions);
+
+    world.add(player!);
+  }
+
+  void _setupCamera() {
+    camera.viewfinder.anchor = Anchor.center;
+    if (player != null) {
+      camera.follow(player!);
+    }
+  }
+
+  void _setupJoystick() {
+    final knobPaint = Paint()..color = flutter.Colors.blue.withOpacity(0.8);
+    final backgroundPaint = Paint()..color = flutter.Colors.blueGrey.withOpacity(0.5);
+
+    joystick = JoystickComponent(
+      knob: CircleComponent(radius: 20, paint: knobPaint),
+      background: CircleComponent(radius: 60, paint: backgroundPaint),
+      position: Vector2(100, size.y - 100),
+    );
+
+    camera.viewport.add(joystick);
+  }
+
   Future<void> _extractCollisionObjects() async {
-    try {
-      final collisionLayer = map.tileMap.getLayer<ObjectGroup>('Collision');
+    final collisionLayer = map.tileMap.getLayer<ObjectGroup>('Collision');
 
-      if (collisionLayer != null) {
-        final scaleFactor = tileSize / map.tileMap.map.tileWidth;
+    if (collisionLayer != null) {
+      final scaleFactor = tileSize / map.tileMap.map.tileWidth;
 
-        for (final obj in collisionLayer.objects) {
-          final position = Vector2(obj.x, obj.y) * scaleFactor;
-          final size = Vector2(obj.width, obj.height) * scaleFactor;
+      for (final obj in collisionLayer.objects) {
+        final position = Vector2(obj.x, obj.y) * scaleFactor;
+        final size = Vector2(obj.width, obj.height) * scaleFactor;
 
-          final collisionBlock = RectangleHitbox(
-            position: position,
-            size: size,
-          );
+        final collisionBlock = RectangleHitbox(
+          position: position,
+          size: size,
+        );
 
-          world.add(
-            PositionComponent(
-              position: Vector2.zero(),
-              size: Vector2.zero(),
-              children: [collisionBlock],
-            ),
-          );
+        world.add(
+          PositionComponent(
+            position: Vector2.zero(),
+            size: Vector2.zero(),
+            children: [collisionBlock],
+          ),
+        );
 
-          collisionBlocks.add(collisionBlock);
-        }
+        collisionBlocks.add(collisionBlock);
       }
-    } catch (e) {
-      print('Error extracting collision objects: $e');
     }
   }
 
   Future<void> _extractPointObjects() async {
-    try {
-      final pointLayer = map.tileMap.getLayer<ObjectGroup>('Point');
+    final pointLayer = map.tileMap.getLayer<ObjectGroup>('Point');
 
-      if (pointLayer != null) {
-        final scaleFactor = tileSize / map.tileMap.map.tileWidth;
+    if (pointLayer != null) {
+      final scaleFactor = tileSize / map.tileMap.map.tileWidth;
 
-        for (final obj in pointLayer.objects) {
-          final position = Vector2(obj.x, obj.y) * scaleFactor;
-          final size = Vector2(obj.width, obj.height) * scaleFactor;
+      for (final obj in pointLayer.objects) {
+        final position = Vector2(obj.x, obj.y) * scaleFactor;
+        final size = Vector2(obj.width, obj.height) * scaleFactor;
 
-          final pointObject = PointObject(
-            position: position,
-            size: size,
-          );
+        final pointObject = PointObject(
+          position: position,
+          size: size,
+        );
 
-          world.add(pointObject);
-          pointObjects.add(pointObject);
-          totalPoints++;
-        }
-      } else {
-        print('Point layer not found in the map');
+        world.add(pointObject);
+        totalPoints++;
       }
-    } catch (e) {
-      print('Error extracting point objects: $e');
+    } else {
+      print('Point layer not found in the map');
     }
   }
 
@@ -592,6 +622,11 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection {
   void update(double dt) {
     super.update(dt);
 
+    _updateCamera();
+    _updatePlayerMovement(dt);
+  }
+
+  void _updateCamera() {
     if (player != null) {
       final halfWidth = camera.viewport.size.x / 2;
       final halfHeight = camera.viewport.size.y / 2;
@@ -617,78 +652,11 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection {
 
       camera.moveTo(targetPosition);
     }
+  }
 
-    if (player != null && joystick.direction != JoystickDirection.idle) {
-      Direction moveDirection;
-
-      if (joystick.delta.x.abs() > joystick.delta.y.abs()) {
-        moveDirection = joystick.delta.x > 0 ? Direction.right : Direction.left;
-      } else {
-        moveDirection = joystick.delta.y > 0 ? Direction.down : Direction.up;
-      }
-
-      final previousPosition = player!.position.clone();
-      double speed = 100 * dt;
-      Vector2 movement = Vector2.zero();
-
-      switch (moveDirection) {
-        case Direction.up:
-          movement.y = -speed;
-          break;
-        case Direction.down:
-          movement.y = speed;
-          break;
-        case Direction.left:
-          movement.x = -speed;
-          break;
-        case Direction.right:
-          movement.x = speed;
-          break;
-        case Direction.idle:
-          break;
-      }
-
-      player!.position.add(movement);
-
-      bool hasCollision = false;
-      for (final block in collisionBlocks) {
-        for (final hitbox in player!.children.whereType<RectangleHitbox>()) {
-          final playerGlobalPosition = player!.position + hitbox.position;
-          final blockGlobalPosition = block.position;
-
-          final playerRect = Rect.fromLTWH(
-            playerGlobalPosition.x,
-            playerGlobalPosition.y,
-            hitbox.size.x,
-            hitbox.size.y,
-          );
-
-          final blockRect = Rect.fromLTWH(
-            blockGlobalPosition.x,
-            blockGlobalPosition.y,
-            block.size.x,
-            block.size.y,
-          );
-
-          if (playerRect.overlaps(blockRect)) {
-            hasCollision = true;
-            break;
-          }
-        }
-
-        if (hasCollision) break;
-      }
-
-      if (hasCollision) {
-        player!.position = previousPosition;
-      }
-
-      player!.position.x = player!.position.x.clamp(0, mapDimensions.x - player!.size.x);
-      player!.position.y = player!.position.y.clamp(0, mapDimensions.y - player!.size.y);
-
-      player!.move(moveDirection);
-    } else if (player != null) {
-      player!.stop();
+  void _updatePlayerMovement(double dt) {
+    if (player != null) {
+      player!.updateMovement(dt, joystick.direction, joystick.delta);
     }
   }
 }

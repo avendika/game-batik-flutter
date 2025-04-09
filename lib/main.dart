@@ -1,7 +1,17 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'screens/lobby_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Lock ke landscape
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+
   runApp(const MyApp());
 }
 

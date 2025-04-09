@@ -7,42 +7,21 @@ import 'package:flame/sprite.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/effects.dart';
 import 'dart:ui';
-import 'dart:async';
-import '../models/direction.dart';
 import '../player/player_component.dart';
 import 'level2.dart';
 
 class PointObject extends SpriteComponent with HasGameRef, CollisionCallbacks {
-  PointObject({
-    required Vector2 position,
-    required Vector2 size,
-  }) : super(
-          position: position,
-          size: size,
-          anchor: Anchor.center,
-        );
+  PointObject({required Vector2 position, required Vector2 size})
+      : super(position: position, size: size, anchor: Anchor.center);
 
   @override
   Future<void> onLoad() async {
     sprite = Sprite(await game.images.load('point_image.png'));
-
-    add(
-      RectangleHitbox(
-        size: size,
-        position: Vector2.zero(),
-        anchor: Anchor.center,
-      ),
-    );
-
+    add(RectangleHitbox(size: size, position: Vector2.zero(), anchor: Anchor.center));
     add(
       ScaleEffect.by(
         Vector2.all(1.2),
-        EffectController(
-          duration: 0.5,
-          reverseDuration: 0.5,
-          infinite: true,
-          alternate: true,
-        ),
+        EffectController(duration: 0.5, reverseDuration: 0.5, infinite: true, alternate: true),
       ),
     );
   }
@@ -50,10 +29,8 @@ class PointObject extends SpriteComponent with HasGameRef, CollisionCallbacks {
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-
     if (other is PlayerComponent) {
       removeFromParent();
-      (game as Level1Game).pointObjects.remove(this);
       (game as Level1Game).collectPoint();
     }
   }
@@ -72,116 +49,109 @@ class LevelCompleteOverlay extends flutter.StatelessWidget {
   @override
   flutter.Widget build(flutter.BuildContext context) {
     return flutter.Material(
-      color: flutter.Colors.black.withOpacity(0.5),
+      color: flutter.Colors.black.withOpacity(0.6),
       child: flutter.Center(
         child: flutter.Container(
-          width: flutter.MediaQuery.of(context).size.width * 0.9,
+          width: flutter.MediaQuery.of(context).size.width * 0.85,
           padding: const flutter.EdgeInsets.all(20),
           decoration: flutter.BoxDecoration(
-            color: flutter.Colors.white,
-            borderRadius: flutter.BorderRadius.circular(20),
+            color: const flutter.Color(0xFFD6C6A8), // Warna latar kecoklatan
+            borderRadius: flutter.BorderRadius.circular(15),
             boxShadow: [
               flutter.BoxShadow(
-                color: flutter.Colors.black.withOpacity(0.3),
+                color: flutter.Colors.black.withOpacity(0.4),
                 blurRadius: 10,
                 spreadRadius: 2,
               )
             ],
           ),
-          child: flutter.SingleChildScrollView(
-            child: flutter.Column(
-              mainAxisSize: flutter.MainAxisSize.min,
-              children: [
-
-                const flutter.Text(
-                  'LEVEL 1 COMPLETED!',
-                  style: flutter.TextStyle(
-                    fontSize: 24,
-                    fontWeight: flutter.FontWeight.bold,
-                    color: flutter.Colors.green,
+          child: flutter.Column(
+            mainAxisSize: flutter.MainAxisSize.min,
+            children: [
+              const flutter.Text(
+                'Level 1 Completed!',
+                style: flutter.TextStyle(
+                  fontSize: 28,
+                  fontWeight: flutter.FontWeight.bold,
+                  fontFamily: 'Serif',
+                  color: flutter.Colors.black,
+                ),
+              ),
+              const flutter.SizedBox(height: 15),
+              const flutter.Divider(
+                color: flutter.Color(0xFF8D7B63),
+                thickness: 1.5,
+                height: 10,
+              ),
+              flutter.Container(
+                height: 120,
+                width: 250,
+                margin: const flutter.EdgeInsets.symmetric(vertical: 15),
+                decoration: const flutter.BoxDecoration(
+                  image: flutter.DecorationImage(
+                    image: flutter.AssetImage('assets/images/batik_parang.png'),
+                    fit: flutter.BoxFit.contain,
                   ),
                 ),
-
-                // Batik Image
-                flutter.Container(
-                  height: 200, // Increased height to show more of the image
-                  width: double.infinity,
-                  margin: const flutter.EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                  decoration: flutter.BoxDecoration(
-                    borderRadius: flutter.BorderRadius.circular(10),
-                    image: const flutter.DecorationImage(
-                      image: flutter.AssetImage('assets/images/batik_parang.png'),
-                      fit: flutter.BoxFit.contain, // Changed from fitWidth to contain
-                    ),
-                  ),
+              ),
+              const flutter.SizedBox(height: 15),
+              const flutter.Text(
+                'Batik Parang adalah salah satu motif batik tertua di Indonesia. '
+                'Bentuknya seperti huruf "S" yang saling berkaitan, melambangkan '
+                'kesinambungan dan kesinambungan hidup. Motif ini berasal dari '
+                'Jawa dan memiliki makna filosofis yang dalam.',
+                textAlign: flutter.TextAlign.center,
+                style: flutter.TextStyle(
+                  fontSize: 14,
+                  height: 1.4,
+                  color: flutter.Colors.black87,
                 ),
-                const flutter.SizedBox(height: 20),
-                
-                const flutter.SizedBox(height: 20),
-                const flutter.Text(
-                  'Materi Batik: Motif Parang',
-                  textAlign: flutter.TextAlign.center,
-                  style: flutter.TextStyle(
-                    fontSize: 20,
-                    fontWeight: flutter.FontWeight.bold,
-                    color: flutter.Colors.deepOrange,
-                  ),
-                ),
-                const flutter.SizedBox(height: 15),
-                const flutter.Text(
-                  'Motif Parang adalah salah satu motif batik tertua di Indonesia. '
-                  'Bentuknya seperti huruf "S" yang saling berkaitan, melambangkan '
-                  'kesinambungan dan kesinambungan hidup. Motif ini berasal dari '
-                  'Jawa dan memiliki makna filosofis yang dalam.',
-                  textAlign: flutter.TextAlign.center,
-                  style: flutter.TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                const flutter.SizedBox(height: 20),
-                const flutter.Text(
-                  'Di Level 2, Anda akan diminta pertanyaan seputar batik ini!',
-                  textAlign: flutter.TextAlign.center,
-                  style: flutter.TextStyle(
-                    fontSize: 16,
-                    fontStyle: flutter.FontStyle.italic,
-                  ),
-                ),
-                const flutter.SizedBox(height: 30),
-                flutter.Row(
-                  mainAxisAlignment: flutter.MainAxisAlignment.center,
-                  children: [
-                    // Back to Menu Button
-                    flutter.ElevatedButton(
-                      onPressed: onBackPressed,
-                      style: flutter.ElevatedButton.styleFrom(
-                        backgroundColor: flutter.Colors.orangeAccent,
-                        foregroundColor: flutter.Colors.white,
-                        padding: const flutter.EdgeInsets.symmetric(
-                          horizontal: 20, 
-                          vertical: 15,
-                        ),
+              ),
+              const flutter.SizedBox(height: 25),
+              flutter.Row(
+                mainAxisAlignment: flutter.MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Back Button
+                  flutter.ElevatedButton(
+                    onPressed: onBackPressed,
+                    style: flutter.ElevatedButton.styleFrom(
+                      backgroundColor: const flutter.Color(0xFFCFC5B4),
+                      foregroundColor: flutter.Colors.black,
+                      padding: const flutter.EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      shape: flutter.RoundedRectangleBorder(
+                        borderRadius: flutter.BorderRadius.circular(5),
                       ),
-                      child: const flutter.Text('MENU UTAMA'),
                     ),
-                    const flutter.SizedBox(width: 20),
-                    // Continue to Level 2 Button
-                    flutter.ElevatedButton(
-                      onPressed: onContinuePressed,
-                      style: flutter.ElevatedButton.styleFrom(
-                        backgroundColor: flutter.Colors.green,
-                        foregroundColor: flutter.Colors.white,
-                        padding: const flutter.EdgeInsets.symmetric(
-                          horizontal: 20, 
-                          vertical: 15,
-                        ),
+                    child: const flutter.Text(
+                      'BACK',
+                      style: flutter.TextStyle(
+                        fontSize: 14,
+                        fontWeight: flutter.FontWeight.bold,
                       ),
-                      child: const flutter.Text('LANJUT LEVEL 2'),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  // Next Level Button
+                  flutter.ElevatedButton(
+                    onPressed: onContinuePressed,
+                    style: flutter.ElevatedButton.styleFrom(
+                      backgroundColor: const flutter.Color(0xFFCFC5B4),
+                      foregroundColor: flutter.Colors.black,
+                      padding: const flutter.EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      shape: flutter.RoundedRectangleBorder(
+                        borderRadius: flutter.BorderRadius.circular(5),
+                      ),
+                    ),
+                    child: const flutter.Text(
+                      'NEXT LEVEL',
+                      style: flutter.TextStyle(
+                        fontSize: 14,
+                        fontWeight: flutter.FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -194,13 +164,11 @@ class Level1Screen extends flutter.StatelessWidget {
 
   @override
   flutter.Widget build(flutter.BuildContext context) {
-    final game = Level1Game();
-    
     return flutter.Scaffold(
       body: flutter.Stack(
         children: [
           GameWidget(
-            game: game,
+            game: Level1Game(),
             overlayBuilderMap: {
               'LevelCompleteOverlay': (flutter.BuildContext context, Level1Game game) {
                 return LevelCompleteOverlay(
@@ -210,7 +178,6 @@ class Level1Screen extends flutter.StatelessWidget {
                   },
                   onContinuePressed: () {
                     game.overlays.remove('LevelCompleteOverlay');
-                    // Navigate to Level 2
                     flutter.Navigator.pushReplacement(
                       context,
                       flutter.MaterialPageRoute(
@@ -243,10 +210,8 @@ class Level1Screen extends flutter.StatelessWidget {
 class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
   late final TiledComponent map;
   PlayerComponent? player;
-  Direction playerDirection = Direction.idle;
   late final JoystickComponent joystick;
   final List<RectangleHitbox> collisionBlocks = [];
-  final List<PointObject> pointObjects = [];
   int totalPoints = 0;
   int collectedPoints = 0;
   bool _levelCompleted = false;
@@ -269,113 +234,115 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
     await super.onLoad();
 
     try {
-      map = await TiledComponent.load('level1.tmx', Vector2.all(tileSize));
-      world.add(map);
-
-      mapDimensions = Vector2(
-        map.tileMap.map.width * tileSize,
-        map.tileMap.map.height * tileSize,
-      );
-
+      // Load map and initialize game components
+      await _loadMap();
       await _extractCollisionObjects();
       await _extractPointObjects();
-
-      final spriteSheet = SpriteSheet(
-        image: await images.load('character_walk.png'),
-        srcSize: Vector2(104, 150),
-      );
-
-      player = PlayerComponent(
-        spriteSheet: spriteSheet,
-        position: playerStartPosition,
-        size: playerSize,
-      );
-
-      final playerHitbox = RectangleHitbox(
-        size: Vector2(playerSize.x * 0.6, playerSize.y * 0.3),
-        position: Vector2(playerSize.x * 0.2, playerSize.y * 0.7),
-      );
-      player!.add(playerHitbox);
-
-      world.add(player!);
-
-      camera.viewfinder.anchor = Anchor.center;
-      if (player != null) {
-        camera.follow(player!);
-      }
-
-      final knobPaint = Paint()..color = flutter.Colors.blue.withOpacity(0.8);
-      final backgroundPaint = Paint()..color = flutter.Colors.blueGrey.withOpacity(0.5);
-
-      joystick = JoystickComponent(
-        knob: CircleComponent(radius: 20, paint: knobPaint),
-        background: CircleComponent(radius: 60, paint: backgroundPaint),
-        position: Vector2(100, size.y - 100),
-      );
-
-      camera.viewport.add(joystick);
+      await _createPlayer();
+      _setupCamera();
+      _setupJoystick();
     } catch (e) {
       print('Error during loading: $e');
     }
   }
 
+  Future<void> _loadMap() async {
+    map = await TiledComponent.load('level1.tmx', Vector2.all(tileSize));
+    world.add(map);
+
+    mapDimensions = Vector2(
+      map.tileMap.map.width * tileSize,
+      map.tileMap.map.height * tileSize,
+    );
+  }
+
+  Future<void> _createPlayer() async {
+    final spriteSheet = SpriteSheet(
+      image: await images.load('character_walk.png'),
+      srcSize: Vector2(104, 150),
+    );
+
+    player = PlayerComponent(
+      spriteSheet: spriteSheet,
+      position: playerStartPosition,
+      size: playerSize,
+    );
+
+    // Set collision blocks and map dimensions
+    player!.setCollisionBlocks(collisionBlocks);
+    player!.setMapDimensions(mapDimensions);
+
+    world.add(player!);
+  }
+
+  void _setupCamera() {
+    camera.viewfinder.anchor = Anchor.center;
+    if (player != null) {
+      camera.follow(player!);
+    }
+  }
+
+  void _setupJoystick() {
+    final knobPaint = Paint()..color = flutter.Colors.blue.withOpacity(0.8);
+    final backgroundPaint = Paint()..color = flutter.Colors.blueGrey.withOpacity(0.5);
+
+    joystick = JoystickComponent(
+      knob: CircleComponent(radius: 20, paint: knobPaint),
+      background: CircleComponent(radius: 60, paint: backgroundPaint),
+      position: Vector2(100, size.y - 100),
+    );
+
+    camera.viewport.add(joystick);
+  }
+
   Future<void> _extractCollisionObjects() async {
-    try {
-      final collisionLayer = map.tileMap.getLayer<ObjectGroup>('Collision');
+    final collisionLayer = map.tileMap.getLayer<ObjectGroup>('Collision');
 
-      if (collisionLayer != null) {
-        final scaleFactor = tileSize / map.tileMap.map.tileWidth;
+    if (collisionLayer != null) {
+      final scaleFactor = tileSize / map.tileMap.map.tileWidth;
 
-        for (final obj in collisionLayer.objects) {
-          final position = Vector2(obj.x, obj.y) * scaleFactor;
-          final size = Vector2(obj.width, obj.height) * scaleFactor;
+      for (final obj in collisionLayer.objects) {
+        final position = Vector2(obj.x, obj.y) * scaleFactor;
+        final size = Vector2(obj.width, obj.height) * scaleFactor;
 
-          final collisionBlock = RectangleHitbox(
-            position: position,
-            size: size,
-          );
+        final collisionBlock = RectangleHitbox(
+          position: position,
+          size: size,
+        );
 
-          world.add(
-            PositionComponent(
-              position: Vector2.zero(),
-              size: Vector2.zero(),
-              children: [collisionBlock],
-            ),
-          );
+        world.add(
+          PositionComponent(
+            position: Vector2.zero(),
+            size: Vector2.zero(),
+            children: [collisionBlock],
+          ),
+        );
 
-          collisionBlocks.add(collisionBlock);
-        }
+        collisionBlocks.add(collisionBlock);
       }
-    } catch (e) {
-      print('Error extracting collision objects: $e');
     }
   }
 
   Future<void> _extractPointObjects() async {
-    try {
-      final pointLayer = map.tileMap.getLayer<ObjectGroup>('Point');
+    final pointLayer = map.tileMap.getLayer<ObjectGroup>('Point');
 
-      if (pointLayer != null) {
-        final scaleFactor = tileSize / map.tileMap.map.tileWidth;
+    if (pointLayer != null) {
+      final scaleFactor = tileSize / map.tileMap.map.tileWidth;
 
-        for (final obj in pointLayer.objects) {
-          final position = Vector2(obj.x, obj.y) * scaleFactor;
-          final size = Vector2(obj.width, obj.height) * scaleFactor;
+      for (final obj in pointLayer.objects) {
+        final position = Vector2(obj.x, obj.y) * scaleFactor;
+        final size = Vector2(obj.width, obj.height) * scaleFactor;
 
-          final pointObject = PointObject(
-            position: position,
-            size: size,
-          );
+        final pointObject = PointObject(
+          position: position,
+          size: size,
+        );
 
-          world.add(pointObject);
-          pointObjects.add(pointObject);
-          totalPoints++;
-        }
-      } else {
-        print('Point layer not found in the map');
+        world.add(pointObject);
+        totalPoints++;
       }
-    } catch (e) {
-      print('Error extracting point objects: $e');
+    } else {
+      print('Point layer not found in the map');
     }
   }
 
@@ -383,6 +350,11 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
   void update(double dt) {
     super.update(dt);
 
+    _updateCamera();
+    _updatePlayerMovement(dt);
+  }
+
+  void _updateCamera() {
     if (player != null) {
       final halfWidth = camera.viewport.size.x / 2;
       final halfHeight = camera.viewport.size.y / 2;
@@ -408,78 +380,11 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
 
       camera.moveTo(targetPosition);
     }
+  }
 
-    if (player != null && joystick.direction != JoystickDirection.idle) {
-      Direction moveDirection;
-
-      if (joystick.delta.x.abs() > joystick.delta.y.abs()) {
-        moveDirection = joystick.delta.x > 0 ? Direction.right : Direction.left;
-      } else {
-        moveDirection = joystick.delta.y > 0 ? Direction.down : Direction.up;
-      }
-
-      final previousPosition = player!.position.clone();
-      double speed = 100 * dt;
-      Vector2 movement = Vector2.zero();
-
-      switch (moveDirection) {
-        case Direction.up:
-          movement.y = -speed;
-          break;
-        case Direction.down:
-          movement.y = speed;
-          break;
-        case Direction.left:
-          movement.x = -speed;
-          break;
-        case Direction.right:
-          movement.x = speed;
-          break;
-        case Direction.idle:
-          break;
-      }
-
-      player!.position.add(movement);
-
-      bool hasCollision = false;
-      for (final block in collisionBlocks) {
-        for (final hitbox in player!.children.whereType<RectangleHitbox>()) {
-          final playerGlobalPosition = player!.position + hitbox.position;
-          final blockGlobalPosition = block.position;
-
-          final playerRect = Rect.fromLTWH(
-            playerGlobalPosition.x,
-            playerGlobalPosition.y,
-            hitbox.size.x,
-            hitbox.size.y,
-          );
-
-          final blockRect = Rect.fromLTWH(
-            blockGlobalPosition.x,
-            blockGlobalPosition.y,
-            block.size.x,
-            block.size.y,
-          );
-
-          if (playerRect.overlaps(blockRect)) {
-            hasCollision = true;
-            break;
-          }
-        }
-
-        if (hasCollision) break;
-      }
-
-      if (hasCollision) {
-        player!.position = previousPosition;
-      }
-
-      player!.position.x = player!.position.x.clamp(0, mapDimensions.x - player!.size.x);
-      player!.position.y = player!.position.y.clamp(0, mapDimensions.y - player!.size.y);
-
-      player!.move(moveDirection);
-    } else if (player != null) {
-      player!.stop();
+  void _updatePlayerMovement(double dt) {
+    if (player != null) {
+      player!.updateMovement(dt, joystick.direction, joystick.delta);
     }
   }
 }
