@@ -5,36 +5,14 @@ import 'package:flame_tiled/flame_tiled.dart';
 import 'package:flutter/material.dart' as flutter;
 import 'package:flame/sprite.dart';
 import 'package:flame/collisions.dart';
-import 'package:flame/effects.dart';
 import 'dart:ui';
 import '../player/player_component.dart';
+import '../points/points_display.dart';
+import '../services/alert_notification.dart';
+import '../points/point_object.dart';
+import '../points/point_collector.dart';
+import '../services/game_setting.dart';
 import 'level2.dart';
-
-class PointObject extends SpriteComponent with HasGameRef, CollisionCallbacks {
-  PointObject({required Vector2 position, required Vector2 size})
-      : super(position: position, size: size, anchor: Anchor.center);
-
-  @override
-  Future<void> onLoad() async {
-    sprite = Sprite(await game.images.load('point_image.png'));
-    add(RectangleHitbox(size: size, position: Vector2.zero(), anchor: Anchor.center));
-    add(
-      ScaleEffect.by(
-        Vector2.all(1.2),
-        EffectController(duration: 0.5, reverseDuration: 0.5, infinite: true, alternate: true),
-      ),
-    );
-  }
-
-  @override
-  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
-    if (other is PlayerComponent) {
-      removeFromParent();
-      (game as Level1Game).collectPoint();
-    }
-  }
-}
 
 class LevelCompleteOverlay extends flutter.StatelessWidget {
   final VoidCallback onContinuePressed;
@@ -167,7 +145,7 @@ class Level1Screen extends flutter.StatelessWidget {
     return flutter.Scaffold(
       body: flutter.Stack(
         children: [
-          GameWidget(
+          GameWidget<Level1Game>(
             game: Level1Game(),
             overlayBuilderMap: {
               'LevelCompleteOverlay': (flutter.BuildContext context, Level1Game game) {
@@ -185,6 +163,28 @@ class Level1Screen extends flutter.StatelessWidget {
                       ),
                     );
                   },
+                );
+              },
+              'PointsDisplay': (flutter.BuildContext context, Level1Game game) {
+                return flutter.Positioned(
+                  top: 20,
+                  right: 20,
+                  child: PointsDisplay(
+                    collected: game.collectedPoints,
+                    total: game.totalPoints,
+                  ),
+                );
+              },
+              'AlertMessage': (flutter.BuildContext context, Level1Game game) {
+                return flutter.Positioned(
+                  top: 70,
+                  left: 0,
+                  right: 0,
+                  child: flutter.Center(
+                    child: AlertNotification(
+                      message: '! Carilah puzzle tersembunyi untuk menyelesaikan level ini',
+                    ),
+                  ),
                 );
               },
             },
@@ -207,7 +207,7 @@ class Level1Screen extends flutter.StatelessWidget {
   }
 }
 
-class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
+class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection implements PointCollector {
   late final TiledComponent map;
   PlayerComponent? player;
   late final JoystickComponent joystick;
@@ -216,6 +216,8 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
   int collectedPoints = 0;
   bool _levelCompleted = false;
 
+  final GameSettings settings = GameSettings();
+
   static const double tileSize = 64.0;
   late final Vector2 mapDimensions;
   final Vector2 playerStartPosition = Vector2(900, 210);
@@ -223,10 +225,23 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
 
   void collectPoint() {
     collectedPoints++;
+    // Play sound effect using settings
+    settings.playSfx('claim.mp3');
+    // Update the points display
+    overlays.remove('PointsDisplay');
+    overlays.add('PointsDisplay');
+    
     if (collectedPoints >= totalPoints && !_levelCompleted) {
       _levelCompleted = true;
+      settings.playSfx('level_complete.mp3');
       overlays.add('LevelCompleteOverlay');
     }
+  }
+    @override
+  void onRemove() {
+    // Stop background music when level is removed
+    settings.stopBackgroundMusic();
+    super.onRemove();
   }
 
   @override
@@ -234,6 +249,10 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
     await super.onLoad();
 
     try {
+      // Ganti musik latar ketika level dimulai
+      settings.stopBackgroundMusic(); // Hentikan musik lobby
+      settings.playBackgroundMusic('background_music.mp3'); // Mainkan musik gameplay
+      
       // Load map and initialize game components
       await _loadMap();
       await _extractCollisionObjects();
@@ -241,6 +260,10 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
       await _createPlayer();
       _setupCamera();
       _setupJoystick();
+      // Add overlays for points display and alert message
+      overlays.add('PointsDisplay');
+      overlays.add('AlertMessage');
+
     } catch (e) {
       print('Error during loading: $e');
     }
@@ -333,7 +356,10 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
         final position = Vector2(obj.x, obj.y) * scaleFactor;
         final size = Vector2(obj.width, obj.height) * scaleFactor;
 
+        final spriteName = obj.name; // <-- Ambil nama dari Tiled
+
         final pointObject = PointObject(
+          spriteName: spriteName,
           position: position,
           size: size,
         );
@@ -345,6 +371,7 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection {
       print('Point layer not found in the map');
     }
   }
+
 
   @override
   void update(double dt) {

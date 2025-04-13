@@ -3,6 +3,7 @@ import 'package:flame/sprite.dart';
 import 'package:flame/collisions.dart';
 import 'dart:ui';
 import '../models/direction.dart';
+import '../services/game_setting.dart';
 
 class PlayerComponent extends SpriteAnimationComponent with CollisionCallbacks {
   final Map<Direction, SpriteAnimation> animations = {};
@@ -79,57 +80,60 @@ class PlayerComponent extends SpriteAnimationComponent with CollisionCallbacks {
     }
   }
   
-  void updateMovement(double dt, JoystickDirection joystickDirection, Vector2 joystickDelta) {
-    // Determine movement direction based on joystick input
-    if (joystickDirection != JoystickDirection.idle) {
-      Direction moveDirection;
-      if (joystickDelta.x.abs() > joystickDelta.y.abs()) {
-        moveDirection = joystickDelta.x > 0 ? Direction.right : Direction.left;
-      } else {
-        moveDirection = joystickDelta.y > 0 ? Direction.down : Direction.up;
-      }
-
-      // Store previous position for collision detection
-      final previousPosition = position.clone();
-      double speed = 500 * dt;
-      Vector2 movement = Vector2.zero();
-
-      // Apply movement based on direction
-      switch (moveDirection) {
-        case Direction.up:
-          movement.y = -speed;
-          break;
-        case Direction.down:
-          movement.y = speed;
-          break;
-        case Direction.left:
-          movement.x = -speed;
-          break;
-        case Direction.right:
-          movement.x = speed;
-          break;
-        case Direction.idle:
-          break;
-      }
-
-      position.add(movement);
-
-      // Check collisions
-      if (_checkCollision()) {
-        position = previousPosition;
-      }
-
-      // Keep player within map bounds
-      if (mapDimensions != Vector2.zero()) {
-        position.x = position.x.clamp(0, mapDimensions.x - size.x);
-        position.y = position.y.clamp(0, mapDimensions.y - size.y);
-      }
-
-      move(moveDirection);
+ void updateMovement(double dt, JoystickDirection joystickDirection, Vector2 joystickDelta) {
+  // Determine movement direction based on joystick input
+  if (joystickDirection != JoystickDirection.idle) {
+    Direction moveDirection;
+    if (joystickDelta.x.abs() > joystickDelta.y.abs()) {
+      moveDirection = joystickDelta.x > 0 ? Direction.right : Direction.left;
     } else {
-      stop();
+      moveDirection = joystickDelta.y > 0 ? Direction.down : Direction.up;
     }
+  
+    // Store previous position for collision detection
+    final previousPosition = position.clone();
+    
+    // Get movement speed from settings
+    final GameSettings settings = GameSettings();
+    double speed = settings.playerMoveSpeed * dt; 
+    Vector2 movement = Vector2.zero();
+
+    // Apply movement based on direction
+    switch (moveDirection) {
+      case Direction.up:
+        movement.y = -speed;
+        break;
+      case Direction.down:
+        movement.y = speed;
+        break;
+      case Direction.left:
+        movement.x = -speed;
+        break;
+      case Direction.right:
+        movement.x = speed;
+        break;
+      case Direction.idle:
+        break;
+    }
+
+    position.add(movement);
+
+    // Check collisions
+    if (_checkCollision()) {
+      position = previousPosition;
+    }
+
+    // Keep player within map bounds
+    if (mapDimensions != Vector2.zero()) {
+      position.x = position.x.clamp(0, mapDimensions.x - size.x);
+      position.y = position.y.clamp(0, mapDimensions.y - size.y);
+    }
+
+    move(moveDirection);
+  } else {
+    stop();
   }
+}
 
   bool _checkCollision() {
     for (final block in collisionBlocks) {

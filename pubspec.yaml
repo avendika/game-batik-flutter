@@ -33,6 +33,8 @@ dependencies:
   flame: ^1.26.0
   flame_tiled: ^2.0.2
   currency_text_input_formatter: ^2.2.9
+  flame_audio: ^2.11.3
+  shared_preferences: ^2.5.3
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -61,6 +63,8 @@ flutter:
   - assets/background/lobby_background.png
   - assets/background/bg_lv.gif
   - assets/background/cloud.png
+  - assets/audio/
+  - assets/images/points/
   - assets/images/
   - assets/tiles/
 

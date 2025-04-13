@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import '../levels/level_selection.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-class LobbyScreen extends StatefulWidget {
-  const LobbyScreen({super.key});
-
-  @override
-  State<LobbyScreen> createState() => _LobbyScreenState();
-}
+import '../services/game_setting.dart';
+import 'tutorial_screen.dart';
+import 'materi_screen.dart';
+import 'settings_screen.dart';
+import '../levels/level_selection.dart';
 
 class Cloud {
   final double sizeFactor; // Ukuran relatif terhadap lebar layar
@@ -23,29 +20,43 @@ class Cloud {
   });
 }
 
+class LobbyScreen extends StatefulWidget {
+  const LobbyScreen({super.key});
+
+  @override
+  State<LobbyScreen> createState() => _LobbyScreenState();
+}
+
 class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin {
   late List<AnimationController> _controllers;
   late List<Animation<double>> _animations;
   final List<Cloud> _clouds = [];
+  bool _areAnimationsInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _controllers = [];
     _animations = [];
+    
+    // Start the lobby music when this screen is shown
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      GameSettings().handleScreenTransition('lobby');
+      
+      // Initialize animations after a slight delay
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          setState(() {
+            _initializeCloudAnimations();
+          });
+        }
+      });
+    });
   }
 
-  @override
-  void dispose() {
-    for (final controller in _controllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  void _initializeClouds(double screenWidth) {
-    if (_clouds.isNotEmpty) return;
-
+  void _initializeCloudAnimations() {
+    if (_areAnimationsInitialized) return;
+    
     _clouds.addAll([
       Cloud(sizeFactor: 0.3, topFactor: 0.1, fromLeft: true, delay: const Duration(seconds: 0)),
       Cloud(sizeFactor: 0.25, topFactor: 0.25, fromLeft: false, delay: const Duration(seconds: 5)),
@@ -64,11 +75,22 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
       return Tween<double>(begin: 0, end: 1).animate(controller);
     }).toList();
 
+    // Start animations with a slight delay between each to reduce load
     for (int i = 0; i < _controllers.length; i++) {
       Future.delayed(_clouds[i].delay, () {
         if (mounted) _controllers[i].repeat();
       });
     }
+    
+    _areAnimationsInitialized = true;
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -78,23 +100,16 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
     final isLandscape = screenWidth > screenHeight;
     final safeArea = MediaQuery.of(context).padding;
 
-    _initializeClouds(screenWidth);
-
     // Adjusted panel dimensions
     final panelWidth = _clamp(screenWidth * 0.85, 280, 400);
-    
     // Dynamically calculate available height
     final availableHeight = screenHeight - safeArea.top - safeArea.bottom;
-    
     // Calculate dynamic min and max heights ensuring min < max
     final maxPanelHeight = min(availableHeight * 0.85, 500);
     final minPanelHeight = min(maxPanelHeight - 1, 250); // Ensure min < max
-    
     // Button dimensions adjusted for available space
-    final verticalSpacing = _clamp(availableHeight * 0.02, 8, 20);
     final buttonWidth = _clamp(panelWidth * 0.75, 180, 300);
     final buttonHeight = _clamp(availableHeight * 0.06, 36, 50);
-    
     // Font sizes adjusted for screen size
     final subtitleFontSize = _clamp(min(screenWidth, screenHeight) * 0.06, 20, 34);
     final buttonFontSize = _clamp(min(screenWidth, screenHeight) * 0.035, 13, 20);
@@ -109,31 +124,8 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
               fit: BoxFit.cover,
             ),
 
-            // Animated Clouds
-            ...List.generate(_clouds.length, (i) {
-              final cloud = _clouds[i];
-              final animation = _animations[i];
-
-              return AnimatedBuilder(
-                animation: animation,
-                builder: (context, child) {
-                  final cloudWidth = screenWidth * cloud.sizeFactor;
-                  final startPos = cloud.fromLeft ? -cloudWidth : screenWidth + cloudWidth;
-                  final endPos = cloud.fromLeft ? screenWidth + cloudWidth : -cloudWidth;
-                  final currentPos = startPos + ((endPos - startPos) * animation.value);
-
-                  return Positioned(
-                    left: currentPos,
-                    top: screenHeight * cloud.topFactor * (isLandscape ? 0.7 : 1.0),
-                    child: Image.asset(
-                      'assets/background/cloud.png',
-                      width: cloudWidth,
-                      fit: BoxFit.contain,
-                    ),
-                  );
-                },
-              );
-            }),
+            // Animated Clouds - only show if animations are initialized
+            if (_areAnimationsInitialized) ..._buildCloudAnimations(screenWidth, screenHeight, isLandscape),
 
             Center(
               child: SingleChildScrollView(
@@ -183,16 +175,55 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _buildMenuButton(context, 'TUTORIAL', () {}, buttonWidth, buttonHeight, buttonFontSize),
+                                _buildMenuButton(context, 'TUTORIAL', () {
+                                  GameSettings().playSfx('button_click.mp3');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const TutorialScreen(),
+                                    ),
+                                  ).then((_) {
+                                    // Resume lobby music when returning
+                                    GameSettings().handleScreenTransition('lobby');
+                                  });
+                                }, buttonWidth, buttonHeight, buttonFontSize),
                                 SizedBox(height: buttonSpacing),
                                 _buildMenuButton(context, 'PLAY', () {
+                                  GameSettings().playSfx('button_click.mp3');
                                   showDialog(
                                     context: context,
                                     builder: (context) => const LevelSelectionDialog(),
-                                  );
+                                  ).then((_) {
+                                    // Resume lobby music when returning
+                                    GameSettings().handleScreenTransition('lobby');
+                                  });
                                 }, buttonWidth, buttonHeight, buttonFontSize),
                                 SizedBox(height: buttonSpacing),
-                                _buildMenuButton(context, 'PENGATURAN', () {}, buttonWidth, buttonHeight, buttonFontSize),
+                                _buildMenuButton(context, 'SEJARAH', () {
+                                  GameSettings().playSfx('button_click.mp3');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const MateriScreen(),
+                                    ),
+                                  ).then((_) {
+                                    // Resume lobby music when returning
+                                    GameSettings().handleScreenTransition('lobby');
+                                  });
+                                }, buttonWidth, buttonHeight, buttonFontSize),
+                                SizedBox(height: buttonSpacing),
+                                _buildMenuButton(context, 'PENGATURAN', () {
+                                  GameSettings().playSfx('button_click.mp3');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const SettingsScreen(),
+                                    ),
+                                  ).then((_) {
+                                    // Resume lobby music when returning
+                                    GameSettings().handleScreenTransition('lobby');
+                                  });
+                                }, buttonWidth, buttonHeight, buttonFontSize),
                               ],
                             ),
                           ),
@@ -210,6 +241,33 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
         ),
       ),
     );
+  }
+
+  List<Widget> _buildCloudAnimations(double screenWidth, double screenHeight, bool isLandscape) {
+    return List.generate(_clouds.length, (i) {
+      final cloud = _clouds[i];
+      final animation = _animations[i];
+
+      return AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          final cloudWidth = screenWidth * cloud.sizeFactor;
+          final startPos = cloud.fromLeft ? -cloudWidth : screenWidth + cloudWidth;
+          final endPos = cloud.fromLeft ? screenWidth + cloudWidth : -cloudWidth;
+          final currentPos = startPos + ((endPos - startPos) * animation.value);
+
+          return Positioned(
+            left: currentPos,
+            top: screenHeight * cloud.topFactor * (isLandscape ? 0.7 : 1.0),
+            child: Image.asset(
+              'assets/background/cloud.png',
+              width: cloudWidth,
+              fit: BoxFit.contain,
+            ),
+          );
+        },
+      );
+    });
   }
 
   Widget _buildTitle(String text, double fontSize) {
