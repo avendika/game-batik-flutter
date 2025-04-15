@@ -32,6 +32,14 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
   late List<Animation<double>> _animations;
   final List<Cloud> _clouds = [];
   bool _areAnimationsInitialized = false;
+  
+  // Map of button assets
+  final Map<String, String> _buttonAssets = {
+    'TUTORIAL': 'assets/images/buttons/tutorial_button.png',
+    'PLAY': 'assets/images/buttons/play_button.png',
+    'SEJARAH': 'assets/images/buttons/sejarah_button.png',
+    'PENGATURAN': 'assets/images/buttons/pengaturan_button.png',
+  };
 
   @override
   void initState() {
@@ -97,22 +105,21 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isLandscape = screenWidth > screenHeight;
     final safeArea = MediaQuery.of(context).padding;
 
-    // Adjusted panel dimensions
-    final panelWidth = _clamp(screenWidth * 0.85, 280, 400);
-    // Dynamically calculate available height
+    // For landscape, we use different sizing strategies
+    // Calculate available height (accounting for safe areas)
     final availableHeight = screenHeight - safeArea.top - safeArea.bottom;
-    // Calculate dynamic min and max heights ensuring min < max
-    final maxPanelHeight = min(availableHeight * 0.85, 500);
-    final minPanelHeight = min(maxPanelHeight - 1, 250); // Ensure min < max
-    // Button dimensions adjusted for available space
-    final buttonWidth = _clamp(panelWidth * 0.75, 180, 300);
-    final buttonHeight = _clamp(availableHeight * 0.06, 36, 50);
-    // Font sizes adjusted for screen size
-    final subtitleFontSize = _clamp(min(screenWidth, screenHeight) * 0.06, 20, 34);
-    final buttonFontSize = _clamp(min(screenWidth, screenHeight) * 0.035, 13, 20);
+    
+    // Panel dimensions optimized for landscape
+    final panelWidth = screenWidth * 0.4; // Narrower panel for landscape
+    final panelHeight = availableHeight * 0.9;
+    
+    // Button width will be a percentage of the panel width
+    final buttonWidth = panelWidth * 0.85;
+    
+    // Landscape title sizing
+    final titleFontSize = _clamp(screenHeight * 0.08, 24, 40);
 
     return Scaffold(
       body: SafeArea(
@@ -124,116 +131,108 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
               fit: BoxFit.cover,
             ),
 
-            // Animated Clouds - only show if animations are initialized
-            if (_areAnimationsInitialized) ..._buildCloudAnimations(screenWidth, screenHeight, isLandscape),
+            // Animated Clouds
+            if (_areAnimationsInitialized) ..._buildCloudAnimations(screenWidth, screenHeight, true),
 
             Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Container(
-                  width: panelWidth,
-                  constraints: BoxConstraints(
-                    maxHeight: maxPanelHeight,
-                    minHeight: minPanelHeight,
-                  ),
-                  margin: EdgeInsets.symmetric(
-                    vertical: _clamp(availableHeight * 0.04, 15, 30),
-                    horizontal: _clamp(screenWidth * 0.03, 10, 20),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: _clamp(availableHeight * 0.04, 15, 30),
-                    horizontal: _clamp(screenWidth * 0.03, 15, 25),
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD2B48C).withOpacity(0.85),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: const Color(0xFF2D0E00), width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      // Calculate spacing based on available height
-                      final contentHeight = constraints.maxHeight;
-                      final titleSpacing = _clamp(contentHeight * 0.06, 15, 40);
-                      final buttonSpacing = _clamp(contentHeight * 0.03, 8, 20);
-                      
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
+              child: Container(
+                width: panelWidth,
+                height: panelHeight,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD2B48C).withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: const Color(0xFF2D0E00), width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                padding: EdgeInsets.symmetric(
+                  vertical: availableHeight * 0.04,
+                  horizontal: panelWidth * 0.07,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Title area
+                    _buildTitle('BATIK', titleFontSize),
+                    _buildTitle('JOURNEY', titleFontSize),
+                    SizedBox(height: availableHeight * 0.04),
+                    
+                    // Menu buttons - evenly spaced
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildTitle('BATIK', subtitleFontSize),
-                          _buildTitle('JOURNEY', subtitleFontSize),
-                          SizedBox(height: titleSpacing),
-
-                          Flexible(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _buildMenuButton(context, 'TUTORIAL', () {
-                                  GameSettings().playSfx('button_click.mp3');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const TutorialScreen(),
-                                    ),
-                                  ).then((_) {
-                                    // Resume lobby music when returning
-                                    GameSettings().handleScreenTransition('lobby');
-                                  });
-                                }, buttonWidth, buttonHeight, buttonFontSize),
-                                SizedBox(height: buttonSpacing),
-                                _buildMenuButton(context, 'PLAY', () {
-                                  GameSettings().playSfx('button_click.mp3');
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => const LevelSelectionDialog(),
-                                  ).then((_) {
-                                    // Resume lobby music when returning
-                                    GameSettings().handleScreenTransition('lobby');
-                                  });
-                                }, buttonWidth, buttonHeight, buttonFontSize),
-                                SizedBox(height: buttonSpacing),
-                                _buildMenuButton(context, 'SEJARAH', () {
-                                  GameSettings().playSfx('button_click.mp3');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const MateriScreen(),
-                                    ),
-                                  ).then((_) {
-                                    // Resume lobby music when returning
-                                    GameSettings().handleScreenTransition('lobby');
-                                  });
-                                }, buttonWidth, buttonHeight, buttonFontSize),
-                                SizedBox(height: buttonSpacing),
-                                _buildMenuButton(context, 'PENGATURAN', () {
-                                  GameSettings().playSfx('button_click.mp3');
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const SettingsScreen(),
-                                    ),
-                                  ).then((_) {
-                                    // Resume lobby music when returning
-                                    GameSettings().handleScreenTransition('lobby');
-                                  });
-                                }, buttonWidth, buttonHeight, buttonFontSize),
-                              ],
-                            ),
+                          _buildImageButton(
+                            context, 
+                            'TUTORIAL', 
+                            () {
+                              GameSettings().playSfx('button_click.mp3');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const TutorialScreen(),
+                                ),
+                              ).then((_) {
+                                GameSettings().handleScreenTransition('lobby');
+                              });
+                            }, 
+                            buttonWidth
                           ),
-                          
-                          // Add a spacer at the bottom for better scrolling experience
-                          SizedBox(height: _clamp(contentHeight * 0.02, 5, 15)),
+                          _buildImageButton(
+                            context, 
+                            'PLAY', 
+                            () {
+                              GameSettings().playSfx('button_click.mp3');
+                              showDialog(
+                                context: context,
+                                builder: (context) => const LevelSelectionDialog(),
+                              ).then((_) {
+                                GameSettings().handleScreenTransition('lobby');
+                              });
+                            }, 
+                            buttonWidth
+                          ),
+                          _buildImageButton(
+                            context, 
+                            'SEJARAH', 
+                            () {
+                              GameSettings().playSfx('button_click.mp3');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MateriScreen(),
+                                ),
+                              ).then((_) {
+                                GameSettings().handleScreenTransition('lobby');
+                              });
+                            }, 
+                            buttonWidth
+                          ),
+                          _buildImageButton(
+                            context, 
+                            'PENGATURAN', 
+                            () {
+                              GameSettings().playSfx('button_click.mp3');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SettingsScreen(),
+                                ),
+                              ).then((_) {
+                                GameSettings().handleScreenTransition('lobby');
+                              });
+                            }, 
+                            buttonWidth
+                          ),
                         ],
-                      );
-                    }
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -251,14 +250,14 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
       return AnimatedBuilder(
         animation: animation,
         builder: (context, child) {
-          final cloudWidth = screenWidth * cloud.sizeFactor;
+          final cloudWidth = screenWidth * cloud.sizeFactor * (isLandscape ? 0.7 : 1.0);
           final startPos = cloud.fromLeft ? -cloudWidth : screenWidth + cloudWidth;
           final endPos = cloud.fromLeft ? screenWidth + cloudWidth : -cloudWidth;
           final currentPos = startPos + ((endPos - startPos) * animation.value);
 
           return Positioned(
             left: currentPos,
-            top: screenHeight * cloud.topFactor * (isLandscape ? 0.7 : 1.0),
+            top: screenHeight * cloud.topFactor,
             child: Image.asset(
               'assets/background/cloud.png',
               width: cloudWidth,
@@ -293,45 +292,37 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildMenuButton(BuildContext context, String text, VoidCallback onPressed, double width, double height, double fontSize) {
-    return Container(
+  Widget _buildImageButton(BuildContext context, String buttonType, VoidCallback onPressed, double width) {
+    // Aspect ratio for landscape buttons (roughly 4:1)
+    final aspectRatio = 6.0;
+    final height = width / aspectRatio;
+    
+    return SizedBox(
       width: width,
       height: height,
-      constraints: const BoxConstraints(minWidth: 180, minHeight: 36),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.grey.shade200,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          padding: EdgeInsets.zero,
-        ),
-        onPressed: onPressed,
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Button image
+              Image.asset(
+                _buttonAssets[buttonType]!,
+                fit: BoxFit.contain,
               ),
-            ),
+              
+              // Add tap effect
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onPressed,
+                  splashColor: Colors.white24,
+                  highlightColor: Colors.transparent,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -340,10 +331,5 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
 
   double _clamp(double value, double min, double max) {
     return value.clamp(min, max);
-  }
-  
-  // Helper function to get minimum of two values
-  double min(double a, double b) {
-    return a < b ? a : b;
   }
 }

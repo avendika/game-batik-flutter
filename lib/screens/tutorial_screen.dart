@@ -190,17 +190,20 @@ class _TutorialScreenState extends State<TutorialScreen> with TickerProviderStat
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                           // Back button relocated here
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back, color: Color(0xFF2D0E00)),
-                              onPressed: () {
-                                // Play sound effect first
-                                if (settings.soundEffectsEnabled) {
-                                  settings.playSfx('button_click.mp3');
-                                }
-                                // Then navigate back
-                                Navigator.pop(context);
-                              },
-                            ),
+GestureDetector(
+  onTap: () {
+    if (settings.soundEffectsEnabled) {
+      settings.playSfx('button_click.mp3');
+    }
+    Navigator.pop(context);
+  },
+  child: Image.asset(
+    'assets/images/back_arrow.png',
+    width: 24,
+    height: 24,
+  ),
+),
+
                             FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(

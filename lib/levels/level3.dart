@@ -13,7 +13,6 @@ import '../services/alert_notification.dart';
 import '../points/point_object.dart';
 import '../points/point_collector.dart';
 import '../services/game_setting.dart';
-import 'level3.dart';
 
 class LevelCompleteOverlay extends flutter.StatelessWidget {
   final VoidCallback onContinuePressed;
@@ -53,7 +52,7 @@ class LevelCompleteOverlay extends flutter.StatelessWidget {
               mainAxisSize: flutter.MainAxisSize.min,
               children: [
                 flutter.Text(
-                  'Level 2 Completed!',
+                  'Level 3 Completed!',
                   style: flutter.TextStyle(
                     fontSize: isSmallScreen ? 24 : 28,
                     fontWeight: flutter.FontWeight.bold,
@@ -213,14 +212,14 @@ class BatikQuestionOverlay extends flutter.StatelessWidget {
                 ),
                 flutter.SizedBox(height: isSmallScreen ? 15 : 20),
 
-                // Batik Image
+                // Batik Image - Updated to Mega Mendung
                 flutter.Container(
                   height: screenSize.height * 0.15,
                   width: screenSize.width * 0.45,
                   decoration: flutter.BoxDecoration(
                     borderRadius: flutter.BorderRadius.circular(12),
                     image: const flutter.DecorationImage(
-                      image: flutter.AssetImage('assets/images/batik_parang.png'),
+                      image: flutter.AssetImage('assets/images/batik_mega_mendung.png'),
                       fit: flutter.BoxFit.cover,
                     ),
                   ),
@@ -228,7 +227,7 @@ class BatikQuestionOverlay extends flutter.StatelessWidget {
 
                 flutter.SizedBox(height: isSmallScreen ? 15 : 20),
                 flutter.Text(
-                  'Jawab pertanyaan berikut untuk memulai Level 2',
+                  'Jawab pertanyaan berikut untuk memulai Level 3',
                   textAlign: flutter.TextAlign.center,
                   style: flutter.TextStyle(
                     fontSize: isSmallScreen ? 14 : 16,
@@ -237,7 +236,7 @@ class BatikQuestionOverlay extends flutter.StatelessWidget {
 
                 flutter.SizedBox(height: isSmallScreen ? 12 : 15),
                 flutter.Text(
-                  'Apa makna filosofi dari motif Batik Parang?',
+                  'Apa makna filosofi dari motif Batik Mega Mendung?',
                   textAlign: flutter.TextAlign.center,
                   style: flutter.TextStyle(
                     fontSize: isSmallScreen ? 16 : 18,
@@ -269,7 +268,7 @@ class BatikQuestionOverlay extends flutter.StatelessWidget {
                   children: [
                     flutter.Flexible(
                       child: flutter.Text(
-                        'Petunjuk : Berhubungan dengan kesinambungan hidup',
+                        'Petunjuk: Berhubungan dengan emosi dan pengendalian diri',
                         style: flutter.TextStyle(
                           fontSize: isSmallScreen ? 12 : 14,
                           fontStyle: flutter.FontStyle.italic,
@@ -371,22 +370,22 @@ class BatikQuestionOverlay extends flutter.StatelessWidget {
   }
 }
 
-class Level2Screen extends flutter.StatefulWidget {
-  const Level2Screen({super.key});
+class Level3Screen extends flutter.StatefulWidget {
+  const Level3Screen({super.key});
 
   @override
-  flutter.State<Level2Screen> createState() => _Level2ScreenState();
+  flutter.State<Level3Screen> createState() => _Level3ScreenState();
 }
 
-class _Level2ScreenState extends flutter.State<Level2Screen> {
-  late final Level2Game game;
+class _Level3ScreenState extends flutter.State<Level3Screen> {
+  late final Level3Game game;
   late final flutter.TextEditingController _answerController;
   bool _showQuestion = true;
 
   @override
   void initState() {
     super.initState();
-    game = Level2Game();
+    game = Level3Game();
     _answerController = flutter.TextEditingController();
   }
 
@@ -411,19 +410,11 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
             GameWidget(
               game: game,
               overlayBuilderMap: {
-                'Leve2CompleteOverlay': (context, game) => LevelCompleteOverlay(
+                'Leve3CompleteOverlay': (context, game) => LevelCompleteOverlay(
                   onBackPressed: () => flutter.Navigator.pop(context),
-                  onContinuePressed: () {
-                    // Navigate to Level3Screen when the Next Level button is pressed
-                    flutter.Navigator.pushReplacement(
-                      context,
-                      flutter.MaterialPageRoute(
-                        builder: (context) => const Level3Screen(),
-                      ),
-                    );
-                  },
+                  onContinuePressed: () {}, // Handle level completion
                 ),
-              'PointsDisplay': (flutter.BuildContext context, Level2Game game) {
+              'PointsDisplay': (flutter.BuildContext context, Level3Game game) {
                 return flutter.Positioned(
                   top: 20,
                   right: 20,
@@ -433,7 +424,7 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
                   ),
                 );
               },
-              'AlertMessage': (flutter.BuildContext context, Level2Game game) {
+              'AlertMessage': (flutter.BuildContext context, Level3Game game) {
                 return flutter.Positioned(
                   top: 70,
                   left: 0,
@@ -454,9 +445,9 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
               onBackPressed: () => flutter.Navigator.pop(context),
               onContinuePressed: () {
                 final answer = _answerController.text.trim().toLowerCase();
-                if (answer.contains('kesinambungan') || 
-                    answer.contains('kontinuitas') ||
-                    answer.contains('keberlanjutan')) {
+                if (answer.contains('kesabaran') || 
+                    answer.contains('sabar') ||
+                    answer.contains('tidak mudah marah')) {
                   _startGame();
                 } else {
                   flutter.ScaffoldMessenger.of(context).showSnackBar(
@@ -488,7 +479,7 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
   }
 }
 
-class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection implements PointCollector{
+class Level3Game extends FlameGame with DragCallbacks, HasCollisionDetection implements PointCollector{
   late final TiledComponent map;
   PlayerComponent? player;
   late final JoystickComponent joystick;
@@ -501,7 +492,7 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
 
   static const double tileSize = 64.0;
   late final Vector2 mapDimensions;
-  final Vector2 playerStartPosition = Vector2(1350, 250);
+  final Vector2 playerStartPosition = Vector2(2700, 100);
   final Vector2 playerSize = Vector2(64, 96);
 
   void collectPoint() {
@@ -515,7 +506,7 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
     if (collectedPoints >= totalPoints && !_levelCompleted) {
       _levelCompleted = true;
       settings.playSfx('level_complete.mp3');
-      overlays.add('Leve2CompleteOverlay');
+      overlays.add('Leve3CompleteOverlay');
     }
   }
 @override
@@ -551,7 +542,7 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
   }
 
   Future<void> _loadMap() async {
-    map = await TiledComponent.load('level2.tmx', Vector2.all(tileSize));
+    map = await TiledComponent.load('level3.tmx', Vector2.all(tileSize));
     world.add(map);
 
     mapDimensions = Vector2(

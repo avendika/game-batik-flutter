@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import '../levels/level1.dart';
 import '../levels/level2.dart';
+import '../levels/level3.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LevelSelectionDialog extends StatelessWidget {
-    double _clamp(double value, double min, double max) {
+  double _clamp(double value, double min, double max) {
     if (value < min) return min;
     if (value > max) return max;
     return value;
   }
+  
   const LevelSelectionDialog({super.key});
 
   @override
@@ -35,96 +37,121 @@ class LevelSelectionDialog extends StatelessWidget {
                 ),
               ),
 
-          // Tombol back di kiri atas
-          Positioned(
-            top: screenHeight * 0.04, // proporsional juga
-            left: screenWidth * 0.05,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFD6C29F), // Warna krem
-                foregroundColor: Colors.black,
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                  vertical: screenHeight * 0.015,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  side: const BorderSide(color: Color(0xFF2D0E00), width: 2),
-                ),
-                shadowColor: Colors.black.withOpacity(0.25),
-                elevation: 2,
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                'KEMBALI',
-                style: GoogleFonts.cinzelDecorative(
-                  textStyle: TextStyle(
-                    fontSize: _clamp(screenWidth * 0.045, 16, 22),
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
-                    color: Colors.black,
-                    shadows: const [
-                      Shadow(
-                        blurRadius: 1.5,
-                        color: Colors.white30,
-                        offset: Offset(1, 1),
-                      ),
-                    ],
+              // Wrap the entire content in SingleChildScrollView
+              SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
                   ),
-                ),
-              ),
-            ),
-          ),
-              // Kotak menu bentuk landscape
-              Center(
-                child: Container(
-                  width: screenWidth * 0.7,
-                  height: screenHeight * 0.5,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD6C29F),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Color(0xFF2D0E00), width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: Offset(2, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                    Text(
-                        'PILIH LEVEL',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.cinzelDecorative(
-                          textStyle: TextStyle(
-                            fontSize: titleFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF723A10),
-                            shadows: const [
-                              Shadow(
-                                blurRadius: 2.0,
-                                color: Colors.white,
-                                offset: Offset(1, 1),
+                  child: IntrinsicHeight(
+                    child: Stack(
+                      children: [
+                        // Tombol back di kiri atas
+                        Positioned(
+                          top: screenHeight * 0.04,
+                          left: screenWidth * 0.05,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: const Color(0xFFD6C29F),
+                              foregroundColor: Colors.black,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.05,
+                                vertical: screenHeight * 0.015,
                               ),
-                            ],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                side: const BorderSide(color: Color(0xFF2D0E00), width: 2),
+                              ),
+                              shadowColor: Colors.black.withOpacity(0.25),
+                              elevation: 2,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'KEMBALI',
+                              style: GoogleFonts.cinzelDecorative(
+                                textStyle: TextStyle(
+                                  fontSize: _clamp(screenWidth * 0.045, 16, 22),
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.2,
+                                  color: Colors.black,
+                                  shadows: const [
+                                    Shadow(
+                                      blurRadius: 1.5,
+                                      color: Colors.white30,
+                                      offset: Offset(1, 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildLevelButton(context, '1', buttonFontSize, buttonWidth, buttonHeight),
-                          _buildLevelButton(context, '2', buttonFontSize, buttonWidth, buttonHeight),
-                          _buildLevelButton(context, '3', buttonFontSize, buttonWidth, buttonHeight),
-                        ],
-                      ),
-                    ],
+                        
+                        // Center content with proper padding to avoid overflow
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: screenHeight * 0.15, // Add more top padding to avoid overlap with back button
+                            bottom: screenHeight * 0.05,
+                          ),
+                          child: Center(
+                            child: Container(
+                              width: screenWidth * 0.7,
+                              // Remove fixed height to make it adapt to content
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD6C29F),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: const Color(0xFF2D0E00), width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    offset: const Offset(2, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min, // Make column wrap its content
+                                children: [
+                                  Text(
+                                    'PILIH LEVEL',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.cinzelDecorative(
+                                      textStyle: TextStyle(
+                                        fontSize: titleFontSize,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF723A10),
+                                        shadows: const [
+                                          Shadow(
+                                            blurRadius: 2.0,
+                                            color: Colors.white,
+                                            offset: Offset(1, 1),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  // Use Wrap for better adaptability on smaller screens
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 10,
+                                    alignment: WrapAlignment.center,
+                                    children: [
+                                      _buildLevelButton(context, '1', buttonFontSize, buttonWidth, buttonHeight),
+                                      _buildLevelButton(context, '2', buttonFontSize, buttonWidth, buttonHeight),
+                                      _buildLevelButton(context, '3', buttonFontSize, buttonWidth, buttonHeight),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -162,7 +189,12 @@ class LevelSelectionDialog extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const Level2Screen()),
           );
         }
-        // Tambahkan Level 2 dan 3 jika sudah ada
+        if (level == '3') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Level3Screen()),
+          );
+        }
       },
       child: Text(
         level,
@@ -182,4 +214,3 @@ class LevelSelectionDialog extends StatelessWidget {
     );
   }
 }
-

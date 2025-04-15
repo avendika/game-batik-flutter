@@ -52,15 +52,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                       IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D0E00)),
-                          onPressed: () {
-                            if (settings.soundEffectsEnabled) {
-                              settings.playSfx('button_click.mp3');
-                            }
-                            Navigator.pop(context);
-                          },
-                        ),
+GestureDetector(
+  onTap: () {
+    if (settings.soundEffectsEnabled) {
+      settings.playSfx('button_click.mp3');
+    }
+    Navigator.pop(context);
+  },
+  child: Image.asset(
+    'assets/images/back_arrow.png',
+    width: 24,
+    height: 24,
+  ),
+),
+
                         Text(
                           'PENGATURAN',
                           style: GoogleFonts.cinzelDecorative(

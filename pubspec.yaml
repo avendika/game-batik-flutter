@@ -58,14 +58,17 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  uses-material-design: true
   assets:
 
   - assets/background/lobby_background.png
   - assets/background/bg_lv.gif
   - assets/background/cloud.png
   - assets/audio/
-  - assets/images/points/
   - assets/images/
+  - assets/images/points/
+  - assets/images/buttons/
+  - assets/images/batiks/
   - assets/tiles/
 
 

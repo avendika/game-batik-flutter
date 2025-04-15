@@ -18,7 +18,7 @@ class MateriScreen extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/background/batik_pattern_bg.jpg'),
+                image: AssetImage('assets/images/batiks/batik_bg.jpg'),
                 fit: BoxFit.cover,
                 opacity: 0.3,
               ),
@@ -41,21 +41,24 @@ class MateriScreen extends StatelessWidget {
                     // Back button and title
                     Row(
                       children: [
-                      IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Color(0xFF2D0E00)),
-                            onPressed: () {
-                              // Play sound effect first
-                              if (settings.soundEffectsEnabled) {
-                                settings.playSfx('button_click.mp3');
-                              }
-                              // Then navigate back
-                              Navigator.pop(context);
-                            },
-                          ),
+GestureDetector(
+  onTap: () {
+    if (settings.soundEffectsEnabled) {
+      settings.playSfx('button_click.mp3');
+    }
+    Navigator.pop(context);
+  },
+  child: Image.asset(
+    'assets/images/back_arrow.png',
+    width: 24,
+    height: 24,
+  ),
+),
+
                         SizedBox(width: _responsiveValue(screenSize.width, 8, 12, 16)),
                         Expanded(
                           child: Text(
-                            'MATERI BATIK NUSANTARA',
+                            'SEJARAH BATIK NUSANTARA',
                             style: GoogleFonts.cinzelDecorative(
                               fontSize: _responsiveTextSize(screenSize.width, 18, 22, 26),
                               fontWeight: FontWeight.bold,
@@ -73,9 +76,9 @@ class MateriScreen extends StatelessWidget {
                     // Introduction card
                     _buildSectionCard(
                       context,
-                      'Pengenalan Batik',
-                      'Batik adalah warisan budaya Indonesia yang diakui UNESCO sebagai Warisan Kemanusiaan untuk Budaya Lisan dan Nonbendawi sejak 2009. Batik bukan sekadar kain bercorak, tetapi memiliki makna filosofis mendalam dan teknik pembuatan yang unik.',
-                      'assets/materi/batik_intro.jpg',
+                      'Legenda Batik',
+                      'Dahulu kala, di tanah Jawa yang subur dan damai, hiduplah para leluhur yang pandai menggambar keindahan alam di atas kain. Mereka tak menggunakan kuas biasa, melainkan sebuah alat kecil bernama canting dan cairan malam panas yang mengalir seperti tinta emas. Dengan tangan yang sabar dan hati yang tenang, mereka menciptakan pola-pola indah: dari gelombang laut yang tenang, hingga kilat petir yang menyambar langit.Namun batik bukan sekadar hiasan. Setiap goresan menyimpan makna. Motif parang melambangkan kekuatan, truntum melambangkan cinta yang tulus, dan sido mukti sebagai harapan hidup yang bahagia.Konon, batik pertama kali lahir di lingkungan para raja dan ratu di istana. Hanya bangsawan yang boleh mengenakannya. Tapi suatu hari, seorang putri kerajaan yang baik hati membawa ilmu membatik keluar dari tembok istana. Ia mengajarkannya pada rakyat jelata, hingga seni ini menyebar ke pelosok desa. Sejak saat itu, setiap daerah mulai menciptakan batiknya sendiri, masing-masing unik dan penuh cerita.Waktu terus berlalu, dunia berubah, tapi batik tetap hidup. Ia menari di kain para penari, menyatu dalam pakaian para petani, bahkan melenggang di panggung mode dunia. Hari ini, setiap kali kamu mengenakan batik, seolah kamu membawa sepotong sejarah dan jiwa nenek moyang kita.',
+                      'assets/images/batiks/series_batik.png',
                       screenSize,
                     ),
 
@@ -171,7 +174,7 @@ class MateriScreen extends StatelessWidget {
               child: Image.asset(
                 imagePath,
                 width: double.infinity,
-                height: _responsiveValue(screenSize.height, 120, 160, 200),
+                height: _responsiveValue(screenSize.height, 200, 250, 300),
                 fit: BoxFit.cover,
               ),
             ),
@@ -207,28 +210,28 @@ class MateriScreen extends StatelessWidget {
         context,
         'Batik Tulis',
         'Dibuat manual dengan canting, setiap goresan unik',
-        'assets/materi/batik_tulis.jpg',
+        'assets/images/batiks/batik_tulis.jpg',
         screenSize,
       ),
       _buildBatikTypeCard(
         context,
         'Batik Cap',
         'Menggunakan cap tembaga, lebih cepat produksinya',
-        'assets/materi/batik_cap.jpg',
+        'assets/images/batiks/batik_cap.jpg',
         screenSize,
       ),
       _buildBatikTypeCard(
         context,
         'Batik Printing',
         'Dicetak modern, harga lebih terjangkau',
-        'assets/materi/batik_print.jpg',
+        'assets/images/batiks/batik_printing.jpg',
         screenSize,
       ),
       _buildBatikTypeCard(
         context,
         'Batik Kombinasi',
         'Gabungan tulis dan cap, nilai seni tinggi',
-        'assets/materi/batik_kombinasi.jpg',
+        'assets/images/batiks/batik_kombinasi.jpg',
         screenSize,
       ),
     ];
@@ -302,28 +305,28 @@ class MateriScreen extends StatelessWidget {
         context,
         '1. Nyoret',
         'Membuat pola di atas kain dengan pensil',
-        'assets/materi/nyoret.jpg',
+        'assets/images/batiks/nyoret.jpg',
         screenSize,
       ),
       _buildProcessStep(
         context,
         '2. Malam',
         'Menggunakan canting untuk menutupi pola dengan malam (lilin batik)',
-        'assets/materi/malam.jpg',
+        'assets/images/batiks/malam.jpg',
         screenSize,
       ),
       _buildProcessStep(
         context,
         '3. Mewarnai',
         'Memberi warna pada bagian yang tidak tertutup malam',
-        'assets/materi/mewarnai.jpg',
+        'assets/images/batiks/mewarnai.png',
         screenSize,
       ),
       _buildProcessStep(
         context,
         '4. Nglorod',
         'Meluruhkan malam dengan air panas',
-        'assets/materi/nglorod.jpg',
+        'assets/images/batiks/nglorod.png',
         screenSize,
       ),
     ];
@@ -387,21 +390,21 @@ class MateriScreen extends StatelessWidget {
         context,
         'Batik Jawa',
         'Batik Solo, Yogyakarta, Pekalongan, dan Cirebon memiliki ciri khas masing-masing. Batik Solo dan Yogya cenderung menggunakan warna sogan (coklat), sedangkan Batik Pekalongan lebih berwarna cerah.',
-        'assets/materi/batik_jawa.jpg',
+        'assets/images/batiks/batik_jawa.png',
         screenSize,
       ),
       _buildRegionBatik(
         context,
         'Batik Madura',
         'Dikenal dengan warna-warna berani seperti merah, kuning, dan hijau dengan motif yang lebih besar dan tegas.',
-        'assets/materi/batik_madura.jpg',
+        'assets/images/batiks/batik_madura.jpg',
         screenSize,
       ),
       _buildRegionBatik(
         context,
         'Batik Bali',
         'Menggabungkan unsur alam Bali dengan warna-warna cerah dan motif yang lebih bebas.',
-        'assets/materi/batik_bali.jpg',
+        'assets/images/batiks/batik_bali.jpg',
         screenSize,
       ),
     ];
@@ -469,83 +472,102 @@ class MateriScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildPhilosophyItems(BuildContext context, Size screenSize) {
-    return [
-      _buildPhilosophyItem(
-        context,
-        'Parang',
-        'Melambangkan kekuatan, keteguhan, dan kesinambungan',
-        screenSize,
+List<Widget> _buildPhilosophyItems(BuildContext context, Size screenSize) {
+  return [
+    _buildPhilosophyItem(
+      Image.asset(
+        'assets/images/batiks/parang_icon.png',
+        width: 24,
+        height: 24,
       ),
-      _buildPhilosophyItem(
-        context,
-        'Kawung',
-        'Melambangkan kesempurnaan, kemurnian, dan keabadian',
-        screenSize,
+      context,
+      'Parang',
+      'Melambangkan kekuatan, keteguhan, dan kesinambungan',
+      screenSize,
+    ),
+    _buildPhilosophyItem(
+      Image.asset(
+        'assets/images/batiks/kawung_icon.png',
+        width: 24,
+        height: 24,
       ),
-      _buildPhilosophyItem(
-        context,
-        'Truntum',
-        'Melambangkan cinta yang tumbuh dan berkembang',
-        screenSize,
+      context,
+      'Kawung',
+      'Melambangkan kesempurnaan, kemurnian, dan keabadian',
+      screenSize,
+    ),
+    _buildPhilosophyItem(
+      Image.asset(
+        'assets/images/batiks/megamendung_icon.png',
+        width: 24,
+        height: 24,
       ),
-      _buildPhilosophyItem(
-        context,
-        'Sido Mukti',
-        'Melambangkan harapan untuk mencapai kebahagiaan lahir batin',
-        screenSize,
+      context,
+      'Mega Mendung',
+      'Melambangkan kesabaran dan ketenangan dalam menghadapi masalah',
+      screenSize,
+    ),
+    _buildPhilosophyItem(
+      Image.asset(
+        'assets/images/batiks/sidomukti_icon.png',
+        width: 24,
+        height: 24,
       ),
-    ];
-  }
+      context,
+      'Sido Mukti',
+      'Melambangkan harapan untuk mencapai kebahagiaan lahir batin',
+      screenSize,
+    ),
+  ];
+}
 
-  Widget _buildPhilosophyItem(
-    BuildContext context, 
-    String motif, 
-    String meaning,
-    Size screenSize,
-  ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: _responsiveValue(screenSize.height, 8, 12, 16)),
-      padding: EdgeInsets.all(_responsiveValue(screenSize.width, 8, 12, 16)),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: const Color(0xFFF0E6D2),
-        border: Border.all(color: const Color(0xFFC49B5D), width: 1),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.favorite, 
-            color: const Color(0xFF8B4513), 
-            size: _responsiveValue(screenSize.width, 16, 20, 24)),
-          SizedBox(width: _responsiveValue(screenSize.width, 8, 12, 16)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  motif,
-                  style: TextStyle(
-                    fontSize: _responsiveTextSize(screenSize.width, 14, 16, 18),
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF2D0E00),
-                  ),
+Widget _buildPhilosophyItem(
+  Widget icon,
+  BuildContext context,
+  String motif,
+  String meaning,
+  Size screenSize,
+) {
+  return Container(
+    margin: EdgeInsets.only(bottom: _responsiveValue(screenSize.height, 8, 12, 16)),
+    padding: EdgeInsets.all(_responsiveValue(screenSize.width, 8, 12, 16)),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+      color: const Color(0xFFF0E6D2),
+      border: Border.all(color: const Color(0xFFC49B5D), width: 1),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        icon, // Display the icon passed as parameter
+        SizedBox(width: _responsiveValue(screenSize.width, 8, 12, 16)),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                motif,
+                style: TextStyle(
+                  fontSize: _responsiveTextSize(screenSize.width, 14, 16, 18),
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF2D0E00),
                 ),
-                SizedBox(height: _responsiveValue(screenSize.height, 2, 4, 6)),
-                Text(
-                  meaning,
-                  style: TextStyle(
-                    fontSize: _responsiveTextSize(screenSize.width, 12, 14, 15),
-                    color: Colors.black87,
-                  ),
+              ),
+              SizedBox(height: _responsiveValue(screenSize.height, 2, 4, 6)),
+              Text(
+                meaning,
+                style: TextStyle(
+                  fontSize: _responsiveTextSize(screenSize.width, 12, 14, 15),
+                  color: Colors.black87,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   bool isPortrait(Size screenSize) => screenSize.height > screenSize.width;
 }
