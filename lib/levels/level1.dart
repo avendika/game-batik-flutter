@@ -13,133 +13,28 @@ import '../points/point_object.dart';
 import '../points/point_collector.dart';
 import '../services/game_setting.dart';
 import 'level2.dart';
+import 'LVCompleted/LevelCompleteOverlay.dart';
 
-
-class LevelCompleteOverlay extends flutter.StatelessWidget {
-  final VoidCallback onContinuePressed;
-  final VoidCallback onBackPressed;
-
-  const LevelCompleteOverlay({
-    super.key, 
-    required this.onContinuePressed,
-    required this.onBackPressed,
-  });
+class Level1Screen extends flutter.StatefulWidget {
+  const Level1Screen({super.key});
 
   @override
-  flutter.Widget build(flutter.BuildContext context) {
-    return flutter.Material(
-      color: flutter.Colors.black.withOpacity(0.6),
-      child: flutter.Center(
-        child: flutter.Container(
-          width: flutter.MediaQuery.of(context).size.width * 0.85,
-          padding: const flutter.EdgeInsets.all(20),
-          decoration: flutter.BoxDecoration(
-            color: const flutter.Color(0xFFD6C6A8), // Warna latar kecoklatan
-            borderRadius: flutter.BorderRadius.circular(15),
-            boxShadow: [
-              flutter.BoxShadow(
-                color: flutter.Colors.black.withOpacity(0.4),
-                blurRadius: 10,
-                spreadRadius: 2,
-              )
-            ],
-          ),
-          child: flutter.Column(
-            mainAxisSize: flutter.MainAxisSize.min,
-            children: [
-              const flutter.Text(
-                'Level 1 Completed!',
-                style: flutter.TextStyle(
-                  fontSize: 28,
-                  fontWeight: flutter.FontWeight.bold,
-                  fontFamily: 'Serif',
-                  color: flutter.Colors.black,
-                ),
-              ),
-              const flutter.SizedBox(height: 15),
-              const flutter.Divider(
-                color: flutter.Color(0xFF8D7B63),
-                thickness: 1.5,
-                height: 10,
-              ),
-              flutter.Container(
-                height: 120,
-                width: 250,
-                margin: const flutter.EdgeInsets.symmetric(vertical: 15),
-                decoration: const flutter.BoxDecoration(
-                  image: flutter.DecorationImage(
-                    image: flutter.AssetImage('assets/images/batik_parang.png'),
-                    fit: flutter.BoxFit.contain,
-                  ),
-                ),
-              ),
-              const flutter.SizedBox(height: 15),
-              const flutter.Text(
-                'Batik Parang adalah salah satu motif batik tertua di Indonesia. '
-                'Bentuknya seperti huruf "S" yang saling berkaitan, melambangkan '
-                'kesinambungan dan kesinambungan hidup. Motif ini berasal dari '
-                'Jawa dan memiliki makna filosofis yang dalam.',
-                textAlign: flutter.TextAlign.center,
-                style: flutter.TextStyle(
-                  fontSize: 14,
-                  height: 1.4,
-                  color: flutter.Colors.black87,
-                ),
-              ),
-              const flutter.SizedBox(height: 25),
-              flutter.Row(
-                mainAxisAlignment: flutter.MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Back Button
-                  flutter.ElevatedButton(
-                    onPressed: onBackPressed,
-                    style: flutter.ElevatedButton.styleFrom(
-                      backgroundColor: const flutter.Color(0xFFCFC5B4),
-                      foregroundColor: flutter.Colors.black,
-                      padding: const flutter.EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                      shape: flutter.RoundedRectangleBorder(
-                        borderRadius: flutter.BorderRadius.circular(5),
-                      ),
-                    ),
-                    child: const flutter.Text(
-                      'BACK',
-                      style: flutter.TextStyle(
-                        fontSize: 14,
-                        fontWeight: flutter.FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  // Next Level Button
-                  flutter.ElevatedButton(
-                    onPressed: onContinuePressed,
-                    style: flutter.ElevatedButton.styleFrom(
-                      backgroundColor: const flutter.Color(0xFFCFC5B4),
-                      foregroundColor: flutter.Colors.black,
-                      padding: const flutter.EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                      shape: flutter.RoundedRectangleBorder(
-                        borderRadius: flutter.BorderRadius.circular(5),
-                      ),
-                    ),
-                    child: const flutter.Text(
-                      'NEXT LEVEL',
-                      style: flutter.TextStyle(
-                        fontSize: 14,
-                        fontWeight: flutter.FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  flutter.State<Level1Screen> createState() => _Level1ScreenState();
 }
 
-class Level1Screen extends flutter.StatelessWidget {
-  const Level1Screen({super.key});
+class _Level1ScreenState extends flutter.State<Level1Screen> {
+  final Level1Game _game = Level1Game();
+  bool _showBackButton = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _game.onLevelCompleted = () {
+      setState(() {
+        _showBackButton = false;
+      });
+    };
+  }
 
   @override
   flutter.Widget build(flutter.BuildContext context) {
@@ -147,68 +42,72 @@ class Level1Screen extends flutter.StatelessWidget {
       body: flutter.Stack(
         children: [
           GameWidget<Level1Game>(
-            game: Level1Game(),
+            game: _game,
             overlayBuilderMap: {
-              'LevelCompleteOverlay': (flutter.BuildContext context, Level1Game game) {
-                return LevelCompleteOverlay(
-                  onBackPressed: () {
-                    game.overlays.remove('LevelCompleteOverlay');
-                    flutter.Navigator.pop(context);
-                  },
-                  onContinuePressed: () {
-                    game.overlays.remove('LevelCompleteOverlay');
-                    flutter.Navigator.pushReplacement(
-                      context,
-                      flutter.MaterialPageRoute(
-                        builder: (context) => const Level2Screen(),
-                      ),
-                    );
-                  },
-                );
-              },
-              'PointsDisplay': (flutter.BuildContext context, Level1Game game) {
-                return flutter.Positioned(
-                  top: 20,
-                  right: 20,
-                  child: PointsDisplay(
-                    collected: game.collectedPoints,
-                    total: game.totalPoints,
+              'LevelCompleteOverlay': (context, game) => LevelCompleteOverlay(
+                    onBackPressed: () {
+                      game.overlays.remove('LevelCompleteOverlay');
+                      flutter.Navigator.pop(context);
+                    },
+                    onContinuePressed: () {
+                      game.overlays.remove('LevelCompleteOverlay');
+                      flutter.Navigator.pushReplacement(
+                        context,
+                        flutter.MaterialPageRoute(
+                          builder: (context) => const Level2Screen(),
+                        ),
+                      );
+                    },
+                    levelNumber: '1',
+                    batikImagePath: 'assets/images/batik_parang.png',
+                    batikDescription:
+                        'Batik Parang adalah salah satu motif batik tertua di Indonesia. '
+                        'Bentuknya seperti huruf "S" yang saling berkaitan, melambangkan '
+                        'kesinambungan dan kesinambungan hidup. Motif ini berasal dari '
+                        'Jawa dan memiliki makna filosofis yang dalam.',
                   ),
-                );
-              },
-              'AlertMessage': (flutter.BuildContext context, Level1Game game) {
-                return flutter.Positioned(
-                  top: 70,
-                  left: 0,
-                  right: 0,
-                  child: flutter.Center(
-                    child: AlertNotification(
-                      message: '! Carilah puzzle tersembunyi untuk menyelesaikan level ini',
+              'PointsDisplay': (context, game) => flutter.Positioned(
+                    top: 20,
+                    right: 20,
+                    child: PointsDisplay(
+                      collected: game.collectedPoints,
+                      total: game.totalPoints,
                     ),
                   ),
-                );
-              },
+              'AlertMessage': (context, game) => flutter.Positioned(
+                    top: 70,
+                    left: 0,
+                    right: 0,
+                    child: flutter.Center(
+                      child: AlertNotification(
+                        message: '! Carilah puzzle tersembunyi untuk menyelesaikan level ini',
+                      ),
+                    ),
+                  ),
             },
           ),
-          flutter.Positioned(
-            top: 20,
-            left: 20,
-            child: flutter.ElevatedButton(
-              onPressed: () => flutter.Navigator.pop(context),
-              style: flutter.ElevatedButton.styleFrom(
-                backgroundColor: flutter.Colors.orangeAccent,
-                foregroundColor: flutter.Colors.white,
+          if (_showBackButton)
+            flutter.Positioned(
+              top: 20,
+              left: 20,
+              child: flutter.ElevatedButton(
+                onPressed: () => flutter.Navigator.pop(context),
+                style: flutter.ElevatedButton.styleFrom(
+                  backgroundColor: flutter.Colors.orangeAccent,
+                  foregroundColor: flutter.Colors.white,
+                ),
+                child: const flutter.Text('Kembali'),
               ),
-              child: const flutter.Text('Kembali'),
             ),
-          ),
         ],
       ),
     );
   }
 }
 
-class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection implements PointCollector {
+class Level1Game extends FlameGame
+    with DragCallbacks, HasCollisionDetection
+    implements PointCollector {
   late final TiledComponent map;
   PlayerComponent? player;
   late final JoystickComponent joystick;
@@ -224,23 +123,25 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
   final Vector2 playerStartPosition = Vector2(900, 210);
   final Vector2 playerSize = Vector2(64, 96);
 
+  /// Notifikasi untuk level selesai
+  void Function()? onLevelCompleted;
+
   void collectPoint() {
     collectedPoints++;
-    // Play sound effect using settings
     settings.playSfx('claim.mp3');
-    // Update the points display
     overlays.remove('PointsDisplay');
     overlays.add('PointsDisplay');
-    
+
     if (collectedPoints >= totalPoints && !_levelCompleted) {
       _levelCompleted = true;
       settings.playSfx('level_complete.mp3');
       overlays.add('LevelCompleteOverlay');
+      onLevelCompleted?.call(); // Panggil callback saat level selesai
     }
   }
-    @override
+
+  @override
   void onRemove() {
-    // Stop background music when level is removed
     settings.stopBackgroundMusic();
     super.onRemove();
   }
@@ -250,21 +151,18 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
     await super.onLoad();
 
     try {
-      // Ganti musik latar ketika level dimulai
-      settings.stopBackgroundMusic(); // Hentikan musik lobby
-      settings.playBackgroundMusic('background_music.mp3'); // Mainkan musik gameplay
-      
-      // Load map and initialize game components
+      settings.stopBackgroundMusic();
+      settings.playBackgroundMusic('background_music.mp3');
+
       await _loadMap();
       await _extractCollisionObjects();
       await _extractPointObjects();
       await _createPlayer();
       _setupCamera();
       _setupJoystick();
-      // Add overlays for points display and alert message
+
       overlays.add('PointsDisplay');
       overlays.add('AlertMessage');
-
     } catch (e) {
       print('Error during loading: $e');
     }
@@ -292,7 +190,6 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
       size: playerSize,
     );
 
-    // Set collision blocks and map dimensions
     player!.setCollisionBlocks(collisionBlocks);
     player!.setMapDimensions(mapDimensions);
 
@@ -356,8 +253,7 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
       for (final obj in pointLayer.objects) {
         final position = Vector2(obj.x, obj.y) * scaleFactor;
         final size = Vector2(obj.width, obj.height) * scaleFactor;
-
-        final spriteName = obj.name; // <-- Ambil nama dari Tiled
+        final spriteName = obj.name;
 
         final pointObject = PointObject(
           spriteName: spriteName,
@@ -372,7 +268,6 @@ class Level1Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
       print('Point layer not found in the map');
     }
   }
-
 
   @override
   void update(double dt) {

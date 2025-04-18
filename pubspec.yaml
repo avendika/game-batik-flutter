@@ -61,9 +61,7 @@ flutter:
   uses-material-design: true
   assets:
 
-  - assets/background/lobby_background.png
-  - assets/background/bg_lv.gif
-  - assets/background/cloud.png
+  - assets/background/
   - assets/audio/
   - assets/images/
   - assets/images/points/
