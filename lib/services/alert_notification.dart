@@ -73,7 +73,7 @@ class _AlertNotificationState extends flutter.State<AlertNotification> with flut
             ),
           ],
           border: flutter.Border.all(
-            color: const flutter.Color(0xFFFFD54F),
+            color: const flutter.Color.fromARGB(255, 0, 0, 0),
             width: 2,
           ),
         ),

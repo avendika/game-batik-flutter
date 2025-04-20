@@ -77,34 +77,41 @@ class _TutorialScreenState extends State<TutorialScreen> with TickerProviderStat
     final isPortrait = screenSize.height > screenSize.width;
     final GameSettings settings = GameSettings();
 
-    // Responsive calculations
+    // Enhanced responsive calculations
     final double panelWidth = _responsiveValue(
       context,
-      mobile: screenSize.width * 0.9,
-      tablet: screenSize.width * 0.75,
-      desktop: 500,
-    ).toDouble().clamp(300, 500);
+      mobile: screenSize.width * 0.95,
+      tablet: screenSize.width * 0.8,
+      desktop: 600,
+    ).toDouble().clamp(300, 600);
 
     final double panelMargin = _responsiveValue(
       context,
-      mobile: 15.0,
+      mobile: 10.0,
       tablet: 20.0,
       desktop: 30.0,
     ).toDouble();
 
     final double titleFontSize = _responsiveValue(
       context,
-      mobile: screenSize.shortestSide * 0.08,
-      tablet: screenSize.shortestSide * 0.07,
-      desktop: 42,
-    ).toDouble().clamp(24, 42);
+      mobile: screenSize.shortestSide * 0.065,
+      tablet: screenSize.shortestSide * 0.055,
+      desktop: 36,
+    ).toDouble().clamp(20, 36);
 
     final double contentFontSize = _responsiveValue(
       context,
-      mobile: screenSize.shortestSide * 0.035,
-      tablet: screenSize.shortestSide * 0.03,
-      desktop: 20,
-    ).toDouble().clamp(14, 20);
+      mobile: screenSize.shortestSide * 0.032,
+      tablet: screenSize.shortestSide * 0.028,
+      desktop: 18,
+    ).toDouble().clamp(14, 18);
+
+    final double imageHeight = _responsiveValue(
+      context,
+      mobile: screenSize.height * (isPortrait ? 0.2 : 0.3),
+      tablet: screenSize.height * (isPortrait ? 0.25 : 0.35),
+      desktop: isPortrait ? 250 : 300,
+    ).toDouble();
 
     return Scaffold(
       body: Stack(
@@ -148,7 +155,7 @@ class _TutorialScreenState extends State<TutorialScreen> with TickerProviderStat
             child: Container(
               width: panelWidth,
               constraints: BoxConstraints(
-                maxHeight: screenSize.height * 0.9,
+                maxHeight: screenSize.height * (isPortrait ? 0.85 : 0.95),
               ),
               margin: EdgeInsets.all(panelMargin),
               child: ClipRRect(
@@ -174,7 +181,7 @@ class _TutorialScreenState extends State<TutorialScreen> with TickerProviderStat
                       // Header with TUTORIAL text and back button
                       Container(
                         padding: EdgeInsets.symmetric(
-                          vertical: isPortrait ? 15 : 10,
+                          vertical: isPortrait ? 12 : 8,
                           horizontal: 20,
                         ),
                         decoration: BoxDecoration(
@@ -186,41 +193,52 @@ class _TutorialScreenState extends State<TutorialScreen> with TickerProviderStat
                             ),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Stack(
+                          alignment: Alignment.center,
                           children: [
-                          // Back button relocated here
-GestureDetector(
-  onTap: () {
-    if (settings.soundEffectsEnabled) {
-      settings.playSfx('button_click.mp3');
-    }
-    Navigator.pop(context);
-  },
-  child: Image.asset(
-    'assets/images/back_arrow.png',
-    width: 24,
-    height: 24,
-  ),
-),
-
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                'TUTORIAL',
-                                style: GoogleFonts.cinzelDecorative(
-                                  textStyle: TextStyle(
-                                    fontSize: titleFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF2D0E00),
-                                    shadows: const [
-                                      Shadow(
-                                        blurRadius: 5.0,
-                                        color: Colors.black38,
-                                        offset: Offset(2, 2),
-                                      ),
-                                    ],
+                            // Back button
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (settings.soundEffectsEnabled) {
+                                    settings.playSfx('button_click.mp3');
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: Image.asset(
+                                  'assets/images/back_arrow.png',
+                                  width: _responsiveValue(
+                                    context,
+                                    mobile: 22,
+                                    tablet: 24,
+                                    desktop: 26,
                                   ),
+                                  height: _responsiveValue(
+                                    context,
+                                    mobile: 22,
+                                    tablet: 24,
+                                    desktop: 26,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
+                            // Centered TUTORIAL text
+                            Text(
+                              'TUTORIAL',
+                              style: GoogleFonts.cinzelDecorative(
+                                textStyle: TextStyle(
+                                  fontSize: titleFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF2D0E00),
+                                  shadows: const [
+                                    Shadow(
+                                      blurRadius: 5.0,
+                                      color: Colors.black38,
+                                      offset: Offset(2, 2),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -234,12 +252,12 @@ GestureDetector(
                           controller: _scrollController,
                           physics: const BouncingScrollPhysics(),
                           padding: EdgeInsets.symmetric(
-                            vertical: 20,
+                            vertical: 16,
                             horizontal: _responsiveValue(
                               context,
-                              mobile: 15.0,
-                              tablet: 20.0,
-                              desktop: 25.0,
+                              mobile: 12.0,
+                              tablet: 18.0,
+                              desktop: 22.0,
                             ).toDouble(),
                           ),
                           child: Column(
@@ -247,143 +265,213 @@ GestureDetector(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               // Introduction
-                              Text(
-                                'Selamat datang di Batik Journey! Berikut cara bermain:',
-                                style: TextStyle(
-                                  fontSize: contentFontSize,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                                textAlign: TextAlign.center,
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _responsiveValue(
+                      context,
+                      mobile: 8.0,
+                      tablet: 12.0,
+                      desktop: 16.0,
+                    ).toDouble(),
+                  ),
+                  child: Text(
+                    'Selamat datang di Batik Journey! Berikut cara bermain:',
+                    style: TextStyle(
+                      fontSize: contentFontSize,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+
+                SizedBox(height: isPortrait ? 24 : 16),
+
+                // Tutorial steps                
+                _buildTutorialStep(
+                  context,
+                  '1',
+                  'Start',
+                  'Mulailah dari Level 1 untuk pengalaman bermain yang lebih seru dan menantang.',
+                  contentFontSize,
+                  titleFontSize * 0.6,
+                  Icons.flag_outlined
+                ),
+                SizedBox(height: isPortrait ? 20 : 12),
+
+                _buildTutorialStep(
+                  context,
+                  '2',
+                  'Point',
+                  'Temukan point tersembunyi sesuai target pada setiap level. Setiap lokasi hanya menyimpan satu point.',
+                  contentFontSize,
+                  titleFontSize * 0.6,
+                  Icons.explore_outlined,
+                ),
+                SizedBox(height: isPortrait ? 20 : 12),
+
+                _buildTutorialStep(
+                  context,
+                  '3',
+                  'Materi',
+                  'Setelah semua point terkumpul, materi tentang batik akan ditampilkan dalam layar pop-up. Baca dengan seksama!',
+                  contentFontSize,
+                  titleFontSize * 0.6,
+                  Icons.menu_book_outlined,
+                ),
+                SizedBox(height: isPortrait ? 20 : 12),
+
+                _buildTutorialStep(
+                  context,
+                  '4',
+                  'Pertanyaan',
+                  'Di level selanjutnya, Anda harus menjawab pertanyaan dari materi sebelumnya untuk bisa bermain. Pastikan Anda mengingatnya!',
+                  contentFontSize,
+                  titleFontSize * 0.6,
+                  Icons.quiz_outlined,
+                ),
+                SizedBox(height: isPortrait ? 24 : 16),
+
+                // Tips section
+                Container(
+                  padding: EdgeInsets.all(
+                    _responsiveValue(
+                      context,
+                      mobile: 10.0,
+                      tablet: 12.0,
+                      desktop: 14.0,
+                    ).toDouble(),
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2D0E00).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: const Color(0xFF2D0E00),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Tips & Trik',
+                        style: TextStyle(
+                          fontSize: titleFontSize * 0.6,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF2D0E00),
+                        ),
+                      ),
+                      SizedBox(height: isPortrait ? 6 : 4),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: _responsiveValue(
+                            context,
+                            mobile: 4.0,
+                            tablet: 6.0,
+                            desktop: 8.0,
+                          ).toDouble(),
+                        ),
+                        child: Text(
+                          '• Setiap lokasi hanya menyimpan satu point\n'
+                          '• Jangan lupa baca materi dengan teliti\n'
+                          '• Jika lupa materi, lihat petunjuk di bawah kolom jawaban\n'
+                          '• Jawaban pertanyaan diambil dari materi level sebelumnya',
+                          style: TextStyle(
+                            fontSize: contentFontSize * 0.9,
+                            color: const Color(0xFF2D0E00),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                              
+                              SizedBox(height: isPortrait ? 20 : 12),
+                              
+                              // Image sections - all left-aligned
+                              _buildImageSection(
+                                context,
+                                'Menu Utama',
+                                'Ini adalah tampilan utama game yang berisi tombol play, tutorial, sejarah, dan pengaturan',
+                                'assets/images/tutorial/menu_utama.png',
+                                contentFontSize,
+                                titleFontSize * 0.6,
+                                imageHeight,
                               ),
                               
-                              SizedBox(height: isPortrait ? 30 : 20),
+                              SizedBox(height: isPortrait ? 20 : 12),
                               
-                              // Tutorial steps
-                              _buildTutorialStep(
+                              _buildImageSection(
                                 context,
-                                '1',
                                 'Pilih Level',
-                                'Pilih level yang ingin dimainkan dari menu Play. Tingkat kesulitan akan meningkat seiring level.',
+                                'Pilih level yang ingin dimainkan dari daftar level yang tersedia. Jika Anda pemain baru, disarankan untuk memulai dari Level 1.',
+                                'assets/images/tutorial/pilih_level.png',
                                 contentFontSize,
                                 titleFontSize * 0.6,
-                                Icons.star_outlined,
+                                imageHeight,
                               ),
+
+                              SizedBox(height: isPortrait ? 20 : 12),
                               
-                              SizedBox(height: isPortrait ? 25 : 15),
-                              
-                              _buildTutorialStep(
+                              _buildImageSection(
                                 context,
-                                '2',
-                                'Kenali Pola Batik',
-                                'Setiap level memiliki pola batik yang harus Anda hafalkan. Perhatikan dengan seksama!',
+                                'Joystick',
+                                'Gunakan joystick di kiri bawah untuk menggerakkan karakter.',
+                                'assets/images/tutorial/joystick.png',
                                 contentFontSize,
                                 titleFontSize * 0.6,
-                                Icons.visibility_outlined,
+                                imageHeight,
                               ),
-                              
-                              SizedBox(height: isPortrait ? 25 : 15),
-                              
-                              _buildTutorialStep(
+
+                              SizedBox(height: isPortrait ? 20 : 12),
+
+                              _buildImageSection(
                                 context,
-                                '3',
-                                'Warnai Pola',
-                                'Gunakan warna yang tersedia untuk mewarnai pola sesuai contoh. Sentuh area yang ingin diwarnai.',
+                                'Points',
+                                'Kumpulkan seluruh poin yang ada di level yang dimainkan untuk menyelesaikan stage.',
+                                'assets/images/tutorial/points.png',
                                 contentFontSize,
                                 titleFontSize * 0.6,
-                                Icons.brush_outlined,
+                                imageHeight,
                               ),
-                              
-                              SizedBox(height: isPortrait ? 25 : 15),
-                              
-                              _buildTutorialStep(
+
+                              SizedBox(height: isPortrait ? 20 : 12),
+
+                              _buildImageSection(
                                 context,
-                                '4',
-                                'Selesaikan Gambar',
-                                'Setelah selesai, sistem akan memeriksa hasil karya Anda. Semakin akurat, semakin tinggi skor!',
+                                'Tangga',
+                                'Ini adalah tampilan tangga yang digunakan untuk naik atau turun di dalam gameplay. Gunakan tangga ini untuk menjelajahi area yang lebih tinggi atau rendah.',
+                                'assets/images/tutorial/tangga.png',
                                 contentFontSize,
                                 titleFontSize * 0.6,
-                                Icons.done_all_outlined,
+                                imageHeight,
+                              ),
+
+                              SizedBox(height: isPortrait ? 20 : 12),
+
+                              _buildImageSection(
+                                context,
+                                'Level Completed',
+                                'Setelah menyelesaikan permainan dengan mengumpulkan semua poin, akan muncul pop-up berisi materi yang menjadi petunjuk (clue) untuk kuis atau pertanyaan di level berikutnya.',
+                                'assets/images/tutorial/level_completed.png',
+                                contentFontSize,
+                                titleFontSize * 0.6,
+                                imageHeight,
+                              ),
+
+                              SizedBox(height: isPortrait ? 20 : 12),
+
+                              _buildImageSection(
+                                context,
+                                'Quiz',
+                                'Untuk bisa lanjut ke level berikutnya, Anda harus menjawab pertanyaan yang diambil dari materi yang ditampilkan setelah level sebelumnya selesai.',
+                                'assets/images/tutorial/quiz.png',
+                                contentFontSize,
+                                titleFontSize * 0.6,
+                                imageHeight,
                               ),
                               
-                              SizedBox(height: isPortrait ? 30 : 20),
-                              
-                              // Tips section
-                              Container(
-                                padding: EdgeInsets.all(
-                                  _responsiveValue(
-                                    context,
-                                    mobile: 10.0,
-                                    tablet: 12.0,
-                                    desktop: 15.0,
-                                  ).toDouble(),
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF2D0E00).withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: const Color(0xFF2D0E00),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'Tips & Trik',
-                                      style: TextStyle(
-                                        fontSize: titleFontSize * 0.6,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF2D0E00),
-                                      ),
-                                    ),
-                                    SizedBox(height: isPortrait ? 8 : 5),
-                                    Text(
-                                      '• Gunakan zoom untuk detail halus\n'
-                                      '• Warna batik tradisional biasanya coklat, biru, dan hitam\n'
-                                      '• Mulailah dari bagian tengah pola\n'
-                                      '• Bandingkan hasil Anda dengan contoh secara berkala',
-                                      style: TextStyle(
-                                        fontSize: contentFontSize * 0.9,
-                                        color: const Color(0xFF2D0E00),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              
-                              SizedBox(height: isPortrait ? 20 : 15),
-                              
-                              // Example image placeholder
-                              Container(
-                                height: _responsiveValue(
-                                  context,
-                                  mobile: 120.0,
-                                  tablet: 150.0,
-                                  desktop: 180.0,
-                                ).toDouble(),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: const Color(0xFF2D0E00).withOpacity(0.5),
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.image_outlined,
-                                    size: _responsiveValue(
-                                      context,
-                                      mobile: 40.0,
-                                      tablet: 50.0,
-                                      desktop: 60.0,
-                                    ).toDouble(),
-                                    color: const Color(0xFF2D0E00).withOpacity(0.5),
-                                  ),
-                                ),
-                              ),
-                              
-                              // Extra space at bottom
-                              SizedBox(height: isPortrait ? 30 : 20),
+                              SizedBox(height: isPortrait ? 16 : 12),
                             ],
                           ),
                         ),
@@ -422,9 +510,9 @@ GestureDetector(
         padding: EdgeInsets.all(
           _responsiveValue(
             context,
-            mobile: 10.0,
-            tablet: 12.0,
-            desktop: 15.0,
+            mobile: 8.0,
+            tablet: 10.0,
+            desktop: 12.0,
           ).toDouble(),
         ),
         child: Row(
@@ -436,15 +524,15 @@ GestureDetector(
                 Container(
                   width: _responsiveValue(
                     context,
-                    mobile: 28.0,
-                    tablet: 32.0,
-                    desktop: 36.0,
+                    mobile: 26.0,
+                    tablet: 30.0,
+                    desktop: 34.0,
                   ).toDouble(),
                   height: _responsiveValue(
                     context,
-                    mobile: 28.0,
-                    tablet: 32.0,
-                    desktop: 36.0,
+                    mobile: 26.0,
+                    tablet: 30.0,
+                    desktop: 34.0,
                   ).toDouble(),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2D0E00),
@@ -461,21 +549,21 @@ GestureDetector(
                     ),
                   ),
                 ),
-                SizedBox(height: isPortrait ? 8 : 5),
+                SizedBox(height: isPortrait ? 6 : 4),
                 Icon(
                   icon,
                   color: const Color(0xFF2D0E00),
                   size: _responsiveValue(
                     context,
-                    mobile: 22.0,
-                    tablet: 24.0,
-                    desktop: 26.0,
+                    mobile: 20.0,
+                    tablet: 22.0,
+                    desktop: 24.0,
                   ).toDouble(),
                 ),
               ],
             ),
             
-            SizedBox(width: isPortrait ? 15 : 10),
+            SizedBox(width: isPortrait ? 12 : 8),
             
             // Content
             Expanded(
@@ -491,7 +579,7 @@ GestureDetector(
                     ),
                   ),
                   
-                  SizedBox(height: isPortrait ? 8 : 5),
+                  SizedBox(height: isPortrait ? 6 : 4),
                   
                   Text(
                     description,
@@ -505,6 +593,82 @@ GestureDetector(
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildImageSection(
+    BuildContext context,
+    String title,
+    String description,
+    String imagePath,
+    double contentFontSize,
+    double titleFontSize,
+    double imageHeight,
+  ) {
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(
+        vertical: isPortrait ? 8.0 : 4.0,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: const Color(0xFF2D0E00).withOpacity(0.3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image container with dynamic constraints
+          Container(
+            constraints: BoxConstraints(
+              maxHeight: imageHeight,
+              maxWidth: screenWidth * 0.9,
+            ),
+            padding: EdgeInsets.all(isPortrait ? 8.0 : 4.0),
+            child: Center(
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          
+          // Text section
+          Padding(
+            padding: EdgeInsets.all(
+              isPortrait 
+                ? _responsiveValue(context, mobile: 10.0, tablet: 12.0, desktop: 14.0)
+                : _responsiveValue(context, mobile: 8.0, tablet: 10.0, desktop: 12.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: isPortrait ? titleFontSize : titleFontSize * 0.9,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF2D0E00),
+                  ),
+                ),
+                SizedBox(height: isPortrait ? 6 : 4),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: isPortrait ? contentFontSize : contentFontSize * 0.9,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

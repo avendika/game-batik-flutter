@@ -13,6 +13,7 @@ import '../services/alert_notification.dart';
 import '../points/point_object.dart';
 import '../points/point_collector.dart';
 import '../services/game_setting.dart';
+import '../services/game_menu.dart';
 import 'level3.dart';
 import 'LVCompleted/LevelCompleteOverlay.dart' as lvCompleted;
 import '../screens/batik_question_overlay.dart';  
@@ -28,18 +29,45 @@ class Level2Screen extends flutter.StatefulWidget {
 class _Level2ScreenState extends flutter.State<Level2Screen> {
   final Level2Game _game = Level2Game();
   late final flutter.TextEditingController _answerController;
-  bool _showBackButton = true;
+  bool _showMenuButton = true;
+  bool _isPaused = false;
   bool _showQuestion = true;
+  late GameMenu _gameMenu;
 
   @override
   void initState() {
+    _showMenuButton = false; 
     super.initState();
     _answerController = flutter.TextEditingController();
     _game.onLevelCompleted = () {
       setState(() {
-        _showBackButton = false;
+        _showMenuButton = false;
       });
     };
+     // Initialize GameMenu
+    _gameMenu = GameMenu(
+      context: context,
+      settings: _game.settings,
+      onResume: () {
+        _game.paused = false;
+        setState(() {
+          _isPaused = false;
+        });
+      },
+      onRestart: () {
+        // Restart the level by replacing it with a new instance
+        flutter.Navigator.pushReplacement(
+          context,
+          flutter.MaterialPageRoute(
+            builder: (context) => const Level2Screen(),
+          ),
+        );
+      },
+      onExit: () {
+        _game.settings.handleScreenTransition('lobby');
+        flutter.Navigator.pop(context); // Return to main menu
+      },
+    );
   }
 
   @override
@@ -50,6 +78,7 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
 
   void _startGame() {
     setState(() {
+      _showMenuButton = true;
       _showQuestion = false;
     });
   }
@@ -97,7 +126,7 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
                 },
                 'AlertMessage': (flutter.BuildContext context, Level2Game game) {
                   return flutter.Positioned(
-                    top: 70,
+                    top: 50,
                     left: 0,
                     right: 0,
                     child: flutter.Center(
@@ -115,7 +144,7 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
               answerController: _answerController,
               onBackPressed: () => flutter.Navigator.pop(context),
               onContinuePressed: () {
-                final answer = _answerController.text.trim().toLowerCase();
+                final answer = _answerController.text.trim().toLowerCase();                       
                 if (answer.contains('kesinambungan') || 
                     answer.contains('kontinuitas') ||
                     answer.contains('keberlanjutan')) {
@@ -135,20 +164,38 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
               quizHint: 'Berhubungan dengan kesinambungan hidup',
             ),
           
-          if (_showBackButton && !_showQuestion)
-            flutter.Positioned(
-              top: 20,
-              left: 20,
-              child: flutter.ElevatedButton(
-                onPressed: () => flutter.Navigator.pop(context),
-                style: flutter.ElevatedButton.styleFrom(
-                  backgroundColor: flutter.Colors.orangeAccent,
-                  foregroundColor: flutter.Colors.white,
+          if (_showMenuButton) 
+            _gameMenu.buildMenuButton(() {
+              _game.settings.stopBackgroundMusic();
+              // Pause the game
+              _game.paused = true;
+              setState(() {
+                _isPaused = true;
+              });
+              
+              // Play button click sound
+              _game.settings.playSfx('button_click.mp3');
+              
+              // Show the menu dialog
+              _gameMenu.showMenuDialog();
+            }),
+          if (_isPaused)
+            flutter.Positioned.fill(
+              child: flutter.Container(
+                color: flutter.Colors.black.withOpacity(0.3),
+                child: flutter.Center(
+                  child: flutter.Text(
+                    'PAUSE',
+                    style: flutter.TextStyle(
+                      color: flutter.Colors.white,
+                      fontSize: 40,
+                      fontWeight: flutter.FontWeight.bold,
+                    ),
+                  ),
                 ),
-                child: const flutter.Text('Kembali'),
               ),
-            ),
-        ],
+            ),        
+          ],
       ),
     );
   }

@@ -12,6 +12,7 @@ import '../services/alert_notification.dart';
 import '../points/point_object.dart';
 import '../points/point_collector.dart';
 import '../services/game_setting.dart';
+import '../services/game_menu.dart'; // Import file menu baru
 import 'level2.dart';
 import 'LVCompleted/LevelCompleteOverlay.dart';
 
@@ -24,16 +25,43 @@ class Level1Screen extends flutter.StatefulWidget {
 
 class _Level1ScreenState extends flutter.State<Level1Screen> {
   final Level1Game _game = Level1Game();
-  bool _showBackButton = true;
+  bool _showMenuButton = true;
+  bool _isPaused = false;
+  late GameMenu _gameMenu; // Tambahkan instance GameMenu
 
   @override
   void initState() {
     super.initState();
     _game.onLevelCompleted = () {
       setState(() {
-        _showBackButton = false;
+        _showMenuButton = false;
       });
     };
+    
+    // Initialize GameMenu
+    _gameMenu = GameMenu(
+      context: context,
+      settings: _game.settings,
+      onResume: () {
+        _game.paused = false;
+        setState(() {
+          _isPaused = false;
+        });
+      },
+      onRestart: () {
+        // Restart the level by replacing it with a new instance
+        flutter.Navigator.pushReplacement(
+          context,
+          flutter.MaterialPageRoute(
+            builder: (context) => const Level1Screen(),
+          ),
+        );
+      },
+      onExit: () {
+        _game.settings.handleScreenTransition('lobby');
+        flutter.Navigator.pop(context); // Return to main menu
+      },
+    );
   }
 
   @override
@@ -47,6 +75,7 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
               'LevelCompleteOverlay': (context, game) => LevelCompleteOverlay(
                     onBackPressed: () {
                       game.overlays.remove('LevelCompleteOverlay');
+                      game.settings.handleScreenTransition('lobby');
                       flutter.Navigator.pop(context);
                     },
                     onContinuePressed: () {
@@ -75,7 +104,7 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
                     ),
                   ),
               'AlertMessage': (context, game) => flutter.Positioned(
-                    top: 70,
+                    top: 50,
                     left: 0,
                     right: 0,
                     child: flutter.Center(
@@ -86,17 +115,34 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
                   ),
             },
           ),
-          if (_showBackButton)
-            flutter.Positioned(
-              top: 20,
-              left: 20,
-              child: flutter.ElevatedButton(
-                onPressed: () => flutter.Navigator.pop(context),
-                style: flutter.ElevatedButton.styleFrom(
-                  backgroundColor: flutter.Colors.orangeAccent,
-                  foregroundColor: flutter.Colors.white,
+          if (_showMenuButton) 
+            _gameMenu.buildMenuButton(() {
+              // Pause the game
+              _game.paused = true;
+              setState(() {
+                _isPaused = true;
+              });
+              
+              // Play button click sound
+              _game.settings.playSfx('button_click.mp3');
+              
+              // Show the menu dialog
+              _gameMenu.showMenuDialog();
+            }),
+          if (_isPaused)
+            flutter.Positioned.fill(
+              child: flutter.Container(
+                color: flutter.Colors.black.withOpacity(0.3),
+                child: flutter.Center(
+                  child: flutter.Text(
+                    'PAUSE',
+                    style: flutter.TextStyle(
+                      color: flutter.Colors.white,
+                      fontSize: 40,
+                      fontWeight: flutter.FontWeight.bold,
+                    ),
+                  ),
                 ),
-                child: const flutter.Text('Kembali'),
               ),
             ),
         ],
@@ -105,6 +151,7 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
   }
 }
 
+// Kelas Level1Game tidak perlu diubah
 class Level1Game extends FlameGame
     with DragCallbacks, HasCollisionDetection
     implements PointCollector {
@@ -115,6 +162,7 @@ class Level1Game extends FlameGame
   int totalPoints = 0;
   int collectedPoints = 0;
   bool _levelCompleted = false;
+  bool _paused = false;
 
   final GameSettings settings = GameSettings();
 
@@ -125,6 +173,17 @@ class Level1Game extends FlameGame
 
   /// Notifikasi untuk level selesai
   void Function()? onLevelCompleted;
+
+  // Getter and setter for paused state
+  bool get paused => _paused;
+  set paused(bool value) {
+    _paused = value;
+    if (_paused) {
+      settings.stopBackgroundMusic(); // Pause music when game is paused
+    } else {
+      settings.resumeBackgroundMusic(); // Resume music when game is unpaused
+    }
+  }
 
   void collectPoint() {
     collectedPoints++;
@@ -151,6 +210,9 @@ class Level1Game extends FlameGame
     await super.onLoad();
 
     try {
+      // Ensure settings are initialized
+      await settings.ensureInitialized();
+      
       settings.stopBackgroundMusic();
       settings.playBackgroundMusic('background_music.mp3');
 
@@ -204,16 +266,19 @@ class Level1Game extends FlameGame
   }
 
   void _setupJoystick() {
-    final knobPaint = Paint()..color = flutter.Colors.blue.withOpacity(0.8);
-    final backgroundPaint = Paint()..color = flutter.Colors.blueGrey.withOpacity(0.5);
+    // Only show joystick if enabled in settings
+    if (settings.showJoystick) {
+      final knobPaint = Paint()..color = flutter.Colors.blue.withOpacity(0.8);
+      final backgroundPaint = Paint()..color = flutter.Colors.blueGrey.withOpacity(0.5);
 
-    joystick = JoystickComponent(
-      knob: CircleComponent(radius: 20, paint: knobPaint),
-      background: CircleComponent(radius: 60, paint: backgroundPaint),
-      position: Vector2(100, size.y - 100),
-    );
+      joystick = JoystickComponent(
+        knob: CircleComponent(radius: 20, paint: knobPaint),
+        background: CircleComponent(radius: 60, paint: backgroundPaint),
+        position: Vector2(100, size.y - 100),
+      );
 
-    camera.viewport.add(joystick);
+      camera.viewport.add(joystick);
+    }
   }
 
   Future<void> _extractCollisionObjects() async {
@@ -271,6 +336,7 @@ class Level1Game extends FlameGame
 
   @override
   void update(double dt) {
+    if (_paused) return; // Skip updates when paused
     super.update(dt);
 
     _updateCamera();
@@ -306,7 +372,7 @@ class Level1Game extends FlameGame
   }
 
   void _updatePlayerMovement(double dt) {
-    if (player != null) {
+    if (player != null && settings.showJoystick) {
       player!.updateMovement(dt, joystick.direction, joystick.delta);
     }
   }

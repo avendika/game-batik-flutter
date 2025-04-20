@@ -18,6 +18,9 @@ class GameSettings {
   bool _isBackgroundMusicPlaying = false;
   String _currentBackgroundTrack = '';
   
+  // Track current screen
+  String _currentScreen = 'lobby'; // default is lobby screen
+  
   // Game difficulty settings
   String _difficulty = 'normal'; // easy, normal, hard
   
@@ -34,6 +37,12 @@ class GameSettings {
   bool get showJoystick => _showJoystick;
   bool get vibrationEnabled => _vibrationEnabled;
   bool get isInitialized => _isInitialized;
+  String get currentScreen => _currentScreen;
+  
+  // Set current screen
+  void setCurrentScreen(String screen) {
+    _currentScreen = screen;
+  }
   
   // Player movement speed based on difficulty
   double get playerMoveSpeed {
@@ -131,7 +140,7 @@ class GameSettings {
       }
     } else if (_backgroundMusicEnabled) {
       // Start music if it should be on but isn't playing
-      playBackgroundMusic('lobby_music.mp3');
+      handleScreenTransition(_currentScreen);
     }
     
     // Save the default settings
@@ -205,6 +214,9 @@ class GameSettings {
       } catch (e) {
         print('Error resuming background music: $e');
       }
+    } else if (_backgroundMusicEnabled && !_isBackgroundMusicPlaying) {
+      // If no track was playing before, play based on current screen
+      handleScreenTransition(_currentScreen);
     }
   }
 
@@ -224,13 +236,8 @@ class GameSettings {
     _backgroundMusicEnabled = !_backgroundMusicEnabled;
     
     if (_backgroundMusicEnabled) {
-      // If we're turning music back on and were playing a track
-      if (_currentBackgroundTrack.isNotEmpty) {
-        playBackgroundMusic(_currentBackgroundTrack);
-      } else {
-        // Default track
-        playBackgroundMusic('lobby_music.mp3');
-      }
+      // Play music based on current screen context
+      handleScreenTransition(_currentScreen);
     } else {
       stopBackgroundMusic();
     }
@@ -285,6 +292,9 @@ class GameSettings {
   void handleScreenTransition(String screenName) {
     if (!_backgroundMusicEnabled) return;
     
+    // Update current screen
+    _currentScreen = screenName;
+    
     try {
       switch (screenName) {
         case 'lobby':
@@ -297,14 +307,22 @@ class GameSettings {
         case 'game':
           if (_currentBackgroundTrack != 'background_music.mp3') {
             playBackgroundMusic('background_music.mp3');
+          } else if (!_isBackgroundMusicPlaying) {
+            resumeBackgroundMusic();
           }
           break;
         case 'victory':
           if (_currentBackgroundTrack != 'level_complete.mp3') {
             playBackgroundMusic('level_complete.mp3');
+          } else if (!_isBackgroundMusicPlaying) {
+            resumeBackgroundMusic();
           }
           break;
         // Add more cases as needed
+        default:
+          if (!_isBackgroundMusicPlaying) {
+            playBackgroundMusic('lobby_music.mp3');
+          }
       }
     } catch (e) {
       print('Error in handleScreenTransition: $e');

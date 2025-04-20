@@ -65,6 +65,7 @@ flutter:
   - assets/audio/
   - assets/images/
   - assets/images/points/
+  - assets/images/tutorial/
   - assets/images/buttons/
   - assets/images/batiks/
   - assets/tiles/

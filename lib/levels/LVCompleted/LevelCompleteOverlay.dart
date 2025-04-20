@@ -58,6 +58,7 @@ class LevelCompleteOverlay extends StatelessWidget {
           fit: isPortrait ? BoxFit.fitHeight : BoxFit.fitWidth,
           alignment: Alignment.center,
         ),
+        borderRadius: BorderRadius.circular(3),
       ),
     );
   }
@@ -229,7 +230,7 @@ class LevelCompleteOverlay extends StatelessWidget {
   }) {
     return Container(
       width: width,
-      height: _responsiveButtonHeight(),
+      height: 50,
       decoration: BoxDecoration(
         image: const DecorationImage(
           image: AssetImage('assets/images/tombol.png'),
@@ -281,10 +282,5 @@ class LevelCompleteOverlay extends StatelessWidget {
     } else {
       return baseSize * mediaQuery.size.shortestSide / 450 * scaleFactor;
     }
-  }
-
-  double _responsiveButtonHeight() {
-    final mediaQuery = MediaQueryData.fromView(WidgetsBinding.instance.window);
-    return mediaQuery.size.height * 0.065;
   }
 }
