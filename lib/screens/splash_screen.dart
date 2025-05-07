@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/game_setting.dart';
-import 'lobby_screen.dart';
+// import 'lobby_screen.dart';
+import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -28,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LobbyScreen()),
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
       }
     });

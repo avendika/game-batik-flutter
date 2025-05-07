@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="21" nextobjectid="67">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="21" nextobjectid="78">
  <tileset firstgid="1" source="SolariaDemoTiles.tsx"/>
  <layer id="1" name="water" width="40" height="30">
   <data encoding="csv">
@@ -287,11 +287,17 @@
   <object id="66" x="230.812" y="70.8371" width="3.19514" height="49.7804"/>
  </objectgroup>
  <objectgroup id="18" name="Point">
-  <object id="36" name="point1" type="point" x="493" y="69" width="20" height="20"/>
-  <object id="38" name="point6" type="point" x="245.667" y="106.833" width="20" height="20"/>
-  <object id="39" name="point3" type="point" x="332" y="223.667" width="20" height="20"/>
-  <object id="40" name="point2" type="point" x="471" y="378.333" width="20" height="20"/>
-  <object id="41" name="point4" type="point" x="232" y="394.833" width="20" height="20"/>
-  <object id="42" name="point5" type="point" x="57.6667" y="94" width="20" height="20"/>
+  <object id="36" name="/megamendung/megamendung1" type="point" x="493" y="69" width="20" height="20"/>
+  <object id="67" name="/megamendung/megamendung5" type="point" x="334.667" y="406.667" width="20" height="20"/>
+  <object id="68" name="/megamendung/megamendung2" type="point" x="386" y="296" width="20" height="20"/>
+  <object id="69" name="/megamendung/megamendung3" type="point" x="352.667" y="112.667" width="20" height="20"/>
+  <object id="70" name="/megamendung/megamendung4" type="point" x="573.333" y="310" width="20" height="20"/>
+  <object id="71" name="/megamendung/megamendung6" type="point" x="462.667" y="434" width="20" height="20"/>
+  <object id="72" name="/megamendung/megamendung9" type="point" x="271.333" y="219.333" width="20" height="20"/>
+  <object id="73" name="/megamendung/megamendung10" type="point" x="85.3333" y="182" width="20" height="20"/>
+  <object id="74" name="/megamendung/megamendung11" type="point" x="53.3333" y="73.3333" width="20" height="20"/>
+  <object id="75" name="/megamendung/megamendung12" type="point" x="246.417" y="76.9167" width="20" height="20"/>
+  <object id="76" name="/megamendung/megamendung7" type="point" x="226.667" y="384" width="20" height="20"/>
+  <object id="77" name="/megamendung/megamendung8" type="point" x="102" y="318" width="20" height="20"/>
  </objectgroup>
 </map>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="50" height="40" tilewidth="16" tileheight="16" infinite="0" nextlayerid="12" nextobjectid="123">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="50" height="40" tilewidth="16" tileheight="16" infinite="0" nextlayerid="12" nextobjectid="129">
  <tileset firstgid="1" source="SolariaDemoTiles.tsx"/>
  <tileset firstgid="421" source="tiles.tsx"/>
  <layer id="1" name="Water" width="50" height="40">
@@ -144,15 +144,21 @@
   <object id="72" x="662.5" y="532.25" width="45.75" height="26.75"/>
  </objectgroup>
  <objectgroup id="11" name="Point">
-  <object id="112" name="point1" type="point" x="666" y="18.5" width="20" height="20"/>
-  <object id="113" name="point2" type="point" x="607.5" y="18" width="20" height="20"/>
-  <object id="114" name="point3" type="point" x="563" y="57" width="20" height="20"/>
-  <object id="115" name="point4" type="point" x="389.5" y="312" width="20" height="20"/>
-  <object id="116" name="point1" type="point" x="625" y="479" width="20" height="20"/>
-  <object id="117" name="point5" x="39.5" y="466.5" width="20" height="20"/>
-  <object id="118" name="point3" x="118" y="504" width="20" height="20"/>
-  <object id="119" name="point5" x="324" y="569" width="20" height="20"/>
-  <object id="121" name="point5" x="78" y="67" width="20" height="20"/>
-  <object id="122" name="point2" x="530" y="579.5" width="20" height="20"/>
+  <object id="112" name="/kawung/kawung1" type="point" x="666" y="18.5" width="20" height="20"/>
+  <object id="113" name="/kawung/kawung2" type="point" x="607.5" y="18" width="20" height="20"/>
+  <object id="114" name="/kawung/kawung3" type="point" x="563" y="57" width="20" height="20"/>
+  <object id="115" name="/kawung/kawung4" type="point" x="430.5" y="302" width="20" height="20"/>
+  <object id="116" name="/kawung/kawung5" type="point" x="625" y="479" width="20" height="20"/>
+  <object id="117" name="/kawung/kawung9" x="39.5" y="466.5" width="20" height="20"/>
+  <object id="118" name="/kawung/kawung8" x="118" y="504" width="20" height="20"/>
+  <object id="119" name="/kawung/kawung7" x="324" y="569" width="20" height="20"/>
+  <object id="121" name="/kawung/kawung10" x="78" y="67" width="20" height="20"/>
+  <object id="122" name="/kawung/kawung6" x="530" y="579.5" width="20" height="20"/>
+  <object id="123" name="/kawung/kawung11" x="150" y="133" width="20" height="20"/>
+  <object id="124" name="/kawung/kawung12" x="229" y="273" width="20" height="20"/>
+  <object id="125" name="/kawung/kawung13" x="92" y="613" width="20" height="20"/>
+  <object id="126" name="/kawung/kawung14" x="327" y="359" width="20" height="20"/>
+  <object id="127" name="/kawung/kawung15" x="494" y="168" width="20" height="20"/>
+  <object id="128" name="/kawung/kawung16" x="724" y="217" width="20" height="20"/>
  </objectgroup>
 </map>
