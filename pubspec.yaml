@@ -77,10 +77,13 @@ flutter:
   - assets/audio/
   - assets/images/
   - assets/avatars/
+  - assets/batik_level/
   - assets/images/points/
-  - assets/images/points/parang/
+  - assets/images/points/gedog/
+  - assets/images/points/parang/  
   - assets/images/points/megamendung/
   - assets/images/points/kawung/
+  - assets/images/points/sidomukti/
   - assets/images/tutorial/
   - assets/images/buttons/
   - assets/images/batiks/

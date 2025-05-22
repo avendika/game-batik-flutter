@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'leaderboard_screen.dart';
 
 class Cloud {
   final double sizeFactor; // Ukuran relatif terhadap lebar layar
@@ -141,9 +142,12 @@ class _LobbyScreenState extends State<LobbyScreen> with TickerProviderStateMixin
             // Animated Clouds
             if (_areAnimationsInitialized) ..._buildCloudAnimations(screenWidth, screenHeight, true),
 
-            // Profile Button in top left corner
-            _buildProfileButton(context),
+          // Profile Button in top left corner
+          _buildProfileButton(context),
 
+          // Leaderboard Button in top right corner - TAMBAHKAN DI SINI
+          _buildLeaderboardButton(context),
+          
             // Main Menu Panel
             Center(
               child: Container(
@@ -628,6 +632,63 @@ void _showProfileDialog(BuildContext context) {
               ),
             ],
           ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildLeaderboardButton(BuildContext context) {
+  final screenSize = MediaQuery.of(context).size;
+  final isSmallScreen = screenSize.width < 400;
+  
+  return Positioned(
+    top: 16.0,
+    right: 16.0,
+    child: GestureDetector(
+      onTap: () {
+        GameSettings().playSfx('button_click.mp3');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LeaderboardPage(), // Sesuaikan dengan nama class LeaderboardPage Anda
+          ),
+        ).then((_) {
+          GameSettings().handleScreenTransition('lobby');
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFD2B48C).withOpacity(0.85),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF2D0E00), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.all(isSmallScreen ? 8.0 : 12.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.leaderboard,
+              color: const Color(0xFF8B4513),
+              size: isSmallScreen ? 20 : 24,
+            ),
+            SizedBox(width: isSmallScreen ? 4 : 8),
+            Text(
+              'PAPAN SKOR',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF2D0E00),
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+            ),
+          ],
         ),
       ),
     ),

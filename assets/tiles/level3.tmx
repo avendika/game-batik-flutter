@@ -145,8 +145,8 @@
  </objectgroup>
  <objectgroup id="11" name="Point">
   <object id="112" name="/kawung/kawung1" type="point" x="666" y="18.5" width="20" height="20"/>
-  <object id="113" name="/kawung/kawung2" type="point" x="607.5" y="18" width="20" height="20"/>
-  <object id="114" name="/kawung/kawung3" type="point" x="563" y="57" width="20" height="20"/>
+  <object id="113" name="/kawung/kawung2" type="point" x="614.773" y="12.3636" width="20" height="20"/>
+  <object id="114" name="/kawung/kawung3" type="point" x="565" y="64" width="20" height="20"/>
   <object id="115" name="/kawung/kawung4" type="point" x="430.5" y="302" width="20" height="20"/>
   <object id="116" name="/kawung/kawung5" type="point" x="625" y="479" width="20" height="20"/>
   <object id="117" name="/kawung/kawung9" x="39.5" y="466.5" width="20" height="20"/>
@@ -158,7 +158,7 @@
   <object id="124" name="/kawung/kawung12" x="229" y="273" width="20" height="20"/>
   <object id="125" name="/kawung/kawung13" x="92" y="613" width="20" height="20"/>
   <object id="126" name="/kawung/kawung14" x="327" y="359" width="20" height="20"/>
-  <object id="127" name="/kawung/kawung15" x="494" y="168" width="20" height="20"/>
-  <object id="128" name="/kawung/kawung16" x="724" y="217" width="20" height="20"/>
+  <object id="127" name="/kawung/kawung15" x="490.667" y="171.667" width="20" height="20"/>
+  <object id="128" name="/kawung/kawung16" x="695" y="190.333" width="20" height="20"/>
  </objectgroup>
 </map>

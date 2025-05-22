@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../levels/level1.dart';
 import '../levels/level2.dart';
 import '../levels/level3.dart';
-// import '../levels/level4.dart';
-// import '../levels/level5.dart';
+import '../levels/level4.dart';
+import '../levels/level5.dart';
 // import '../levels/level6.dart';
 // import '../levels/level7.dart';
 // import '../levels/level8.dart';
@@ -219,12 +219,12 @@ class LevelSelectionDialog extends StatelessWidget {
       case 3:
         levelScreen = const Level3Screen();
         break;
-      // case 4:
-      //   levelScreen = const Level4Screen();
-      //   break;
-      // case 5:
-      //   levelScreen = const Level5Screen();
-      //   break;
+      case 4:
+        levelScreen = const Level4Screen();
+        break;
+      case 5:
+        levelScreen = const Level5Screen();
+        break;
       // case 6:
       //   levelScreen = const Level6Screen();
       //   break;

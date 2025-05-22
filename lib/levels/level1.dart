@@ -12,7 +12,8 @@ import '../services/alert_notification.dart';
 import '../points/point_object.dart';
 import '../points/point_collector.dart';
 import '../services/game_setting.dart';
-import '../services/game_menu.dart'; // Import file menu baru
+import '../services/game_menu.dart';
+import '../services/user_service.dart'; // Import UserService
 import 'level2.dart';
 import 'LVCompleted/LevelCompleteOverlay.dart';
 
@@ -27,7 +28,9 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
   final Level1Game _game = Level1Game();
   bool _showMenuButton = true;
   bool _isPaused = false;
-  late GameMenu _gameMenu; // Tambahkan instance GameMenu
+  late GameMenu _gameMenu;
+  // Add UserService instance
+  final UserService _userService = UserService();
 
   @override
   void initState() {
@@ -36,6 +39,13 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
       setState(() {
         _showMenuButton = false;
       });
+      
+      // Update user score when level is completed
+      if (_userService.isLoggedIn && _game.collectedPoints > 0) {
+        final currentScore = _userService.currentUser?.score ?? 0;
+        final newScore = currentScore + _game.collectedPoints;
+        _userService.updateProgress(newScore: newScore);
+      }
     };
     
     // Initialize GameMenu
@@ -58,6 +68,13 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
         );
       },
       onExit: () {
+        // Update score before exiting if points were collected
+        if (_userService.isLoggedIn && _game.collectedPoints > 0) {
+          final currentScore = _userService.currentUser?.score ?? 0;
+          final newScore = currentScore + _game.collectedPoints;
+          _userService.updateProgress(newScore: newScore);
+        }
+        
         _game.settings.handleScreenTransition('lobby');
         flutter.Navigator.pop(context); // Return to main menu
       },
@@ -88,7 +105,7 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
                       );
                     },
                     levelNumber: '1',
-                    batikImagePath: 'assets/images/batik_parang.png',
+                    batikImagePath: 'assets/batik_level/batik_parang.png',
                     batikDescription:
                         'Batik Parang adalah salah satu motif batik tertua di Indonesia. '
                         'Bentuknya seperti huruf "S" yang saling berkaitan, melambangkan '
@@ -151,7 +168,6 @@ class _Level1ScreenState extends flutter.State<Level1Screen> {
   }
 }
 
-// Kelas Level1Game tidak perlu diubah
 class Level1Game extends FlameGame
     with DragCallbacks, HasCollisionDetection
     implements PointCollector {
@@ -163,6 +179,9 @@ class Level1Game extends FlameGame
   int collectedPoints = 0;
   bool _levelCompleted = false;
   bool _paused = false;
+  
+  // Add UserService instance
+  final UserService userService = UserService();
 
   final GameSettings settings = GameSettings();
 
@@ -190,6 +209,13 @@ class Level1Game extends FlameGame
     settings.playSfx('claim.mp3');
     overlays.remove('PointsDisplay');
     overlays.add('PointsDisplay');
+    
+    // Update user score in real-time whenever a point is collected
+    if (userService.isLoggedIn) {
+      final currentScore = userService.currentUser?.score ?? 0;
+      final newScore = currentScore + 10; // Add 1 point to score
+      userService.updateProgress(newScore: newScore);
+    }
 
     if (collectedPoints >= totalPoints && !_levelCompleted) {
       _levelCompleted = true;

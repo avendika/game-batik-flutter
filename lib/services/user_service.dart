@@ -49,9 +49,39 @@ class UserService {
   List<String> availableAvatars = [];
   String defaultAvatar = 'assets/avatars/default.png';
 
+  // Konfigurasi sistem level linear
+  static const int pointsPerLevel = 100; // Jumlah poin yang dibutuhkan untuk naik 1 level
+  static const int maxLevel = 30; // Level maksimum yang dapat dicapai
+
   User? get currentUser => _currentUser;
   String? get token => _token;
   bool get isLoggedIn => _currentUser != null && _token != null;
+
+  // Fungsi untuk menghitung level berdasarkan skor (sistem linear)
+  static int calculateLevel(int score) {
+    // Formula: Level = (score / pointsPerLevel) + 1
+    // Contoh: 
+    // - 0-100 poin = Level 1
+    // - 101-200 poin = Level 2
+    // - dst.
+    int calculatedLevel = (score ~/ pointsPerLevel) + 1;
+    
+    // Batasi level maksimal
+    return calculatedLevel > maxLevel ? maxLevel : calculatedLevel;
+  }
+  
+  // Fungsi untuk mengetahui berapa poin lagi untuk naik level
+  static int pointsToNextLevel(int score) {
+    int currentLevel = calculateLevel(score);
+    
+    // Jika sudah mencapai level maksimum, tidak perlu poin lagi
+    if (currentLevel >= maxLevel) {
+      return 0;
+    }
+    
+    int pointsNeeded = currentLevel * pointsPerLevel;
+    return pointsNeeded - score;
+  }
 
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
@@ -172,87 +202,87 @@ class UserService {
     }
   }
 
-Future<bool> register(String username, String password, {String? avatar}) async {
-  try {
-    // Default request data
-    final Map<String, dynamic> requestData = {
-      'username': username,
-      'password': password,
-    };
-    
-    // Handle custom avatar
-    if (avatar != null) {
-      debugPrint('Processing avatar: $avatar');
+  Future<bool> register(String username, String password, {String? avatar}) async {
+    try {
+      // Default request data
+      final Map<String, dynamic> requestData = {
+        'username': username,
+        'password': password,
+      };
       
-      // Web - base64 image
-      if (kIsWeb && avatar.startsWith('data:image')) {
-        // Parse base64 from data URI
-        final avatarData = avatar.split(',')[1];
-        requestData['custom_avatar'] = true; 
-        requestData['avatar_data'] = avatarData;
-        requestData['avatar_name'] = 'custom_avatar.png';
+      // Handle custom avatar
+      if (avatar != null) {
+        debugPrint('Processing avatar: $avatar');
         
-        debugPrint('Sending base64 avatar data (length: ${avatarData.length})');
-      } 
-      // Mobile - file path
-      else if (!kIsWeb && (avatar.startsWith('/') || avatar.startsWith('file://'))) {
-        try {
-          final cleanPath = avatar.replaceFirst('file://', '');
-          debugPrint('Processing avatar file at path: $cleanPath');
+        // Web - base64 image
+        if (kIsWeb && avatar.startsWith('data:image')) {
+          // Parse base64 from data URI
+          final avatarData = avatar.split(',')[1];
+          requestData['custom_avatar'] = true; 
+          requestData['avatar_data'] = avatarData;
+          requestData['avatar_name'] = 'custom_avatar.png';
           
-          final avatarFile = File(cleanPath);
-          if (await avatarFile.exists()) {
-            // Process image before uploading (resize/compress)
-            final processedFile = await _fileAvatarService.processImage(avatarFile);
+          debugPrint('Sending base64 avatar data (length: ${avatarData.length})');
+        } 
+        // Mobile - file path
+        else if (!kIsWeb && (avatar.startsWith('/') || avatar.startsWith('file://'))) {
+          try {
+            final cleanPath = avatar.replaceFirst('file://', '');
+            debugPrint('Processing avatar file at path: $cleanPath');
             
-            // Read file as bytes and encode to base64
-            final bytes = await processedFile.readAsBytes();
-            final base64Data = base64Encode(bytes);
-            
-            // Add to request
-            requestData['custom_avatar'] = true;
-            requestData['avatar_data'] = base64Data;
-            requestData['avatar_name'] = p.basename(avatarFile.path);
-            
-            debugPrint('Sending processed avatar data (length: ${base64Data.length})');
-          } else {
-            debugPrint('Avatar file not found at: $cleanPath');
+            final avatarFile = File(cleanPath);
+            if (await avatarFile.exists()) {
+              // Process image before uploading (resize/compress)
+              final processedFile = await _fileAvatarService.processImage(avatarFile);
+              
+              // Read file as bytes and encode to base64
+              final bytes = await processedFile.readAsBytes();
+              final base64Data = base64Encode(bytes);
+              
+              // Add to request
+              requestData['custom_avatar'] = true;
+              requestData['avatar_data'] = base64Data;
+              requestData['avatar_name'] = p.basename(avatarFile.path);
+              
+              debugPrint('Sending processed avatar data (length: ${base64Data.length})');
+            } else {
+              debugPrint('Avatar file not found at: $cleanPath');
+              requestData['avatar'] = defaultAvatar;
+            }
+          } catch (e) {
+            debugPrint('Error processing avatar file: $e');
             requestData['avatar'] = defaultAvatar;
           }
-        } catch (e) {
-          debugPrint('Error processing avatar file: $e');
-          requestData['avatar'] = defaultAvatar;
         }
+        // Predefined avatar
+        else {
+          requestData['avatar'] = avatar;
+        }
+      } else {
+        requestData['avatar'] = defaultAvatar;
       }
-      // Predefined avatar
-      else {
-        requestData['avatar'] = avatar;
-      }
-    } else {
-      requestData['avatar'] = defaultAvatar;
-    }
-    
-    debugPrint('Registration request data keys: ${requestData.keys.toList()}');
-    
-    final response = await http.post(
-      Uri.parse(ApiConfig.getFullUrl(ApiConfig.register)),
-      headers: ApiConfig.getHeaders(),
-      body: json.encode(requestData),
-    );
+      
+      debugPrint('Registration request data keys: ${requestData.keys.toList()}');
+      
+      final response = await http.post(
+        Uri.parse(ApiConfig.getFullUrl(ApiConfig.register)),
+        headers: ApiConfig.getHeaders(),
+        body: json.encode(requestData),
+      );
 
-    if (response.statusCode == 201) {
-      final data = json.decode(response.body);
-      debugPrint('Registration response: ${response.body}');
-      return data['success'] == true;
-    } else {
-      debugPrint('Registration failed: ${response.statusCode}, ${response.body}');
+      if (response.statusCode == 201) {
+        final data = json.decode(response.body);
+        debugPrint('Registration response: ${response.body}');
+        return data['success'] == true;
+      } else {
+        debugPrint('Registration failed: ${response.statusCode}, ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Registration error: $e');
       return false;
     }
-  } catch (e) {
-    debugPrint('Registration error: $e');
-    return false;
   }
-}
 
   Future<void> logout() async {
     try {
@@ -350,14 +380,67 @@ Future<bool> register(String username, String password, {String? avatar}) async 
     }
   }
 
+  // Metode baru untuk menambah skor pengguna dan update level secara otomatis
+  Future<bool> addScore(int additionalScore) async {
+    if (_currentUser == null || _token == null) return false;
+    
+    try {
+      // Hitung skor baru
+      final int newScore = _currentUser!.score + additionalScore;
+      
+      // Hitung level baru berdasarkan skor baru (sistem linear)
+      final int newLevel = calculateLevel(newScore);
+      
+      // Periksa apakah level naik
+      bool levelUp = newLevel > _currentUser!.level;
+      
+      // Check if already at max level
+      bool reachedMaxLevel = newLevel >= maxLevel && _currentUser!.level < maxLevel;
+      
+      // Update skor dan level ke server
+      final success = await updateProgress(newScore: newScore, newLevel: newLevel);
+      
+      if (success) {
+        if (levelUp) {
+          debugPrint('Level up! User is now level $newLevel');
+          // Di sini bisa ditambahkan kode untuk menampilkan notifikasi level up
+        }
+        
+        if (reachedMaxLevel) {
+          debugPrint('User has reached the maximum level: $maxLevel');
+          // Di sini bisa ditambahkan kode untuk notifikasi pencapaian level maksimum
+        }
+      }
+      
+      return success;
+    } catch (e) {
+      debugPrint('Add score error: $e');
+      return false;
+    }
+  }
+
   Future<bool> updateProgress({int? newLevel, int? newScore}) async {
     if (_currentUser == null || _token == null) return false;
 
     try {
       final Map<String, dynamic> updateData = {};
-      if (newLevel != null) updateData['level'] = newLevel;
-      if (newScore != null) updateData['score'] = newScore;
-      if (updateData.isEmpty) return true;
+      
+      // Update score jika ada
+      if (newScore != null) {
+        updateData['score'] = newScore;
+        
+        // Jika tidak ada parameter newLevel, hitung level berdasarkan skor baru
+        if (newLevel == null) {
+          newLevel = calculateLevel(newScore);
+        }
+      }
+      
+      // Update level jika ada
+      if (newLevel != null) {
+        updateData['level'] = newLevel;
+      }
+      
+      if (updateData.isEmpty) return true; // Nothing to update
 
       final response = await http.put(
         Uri.parse(ApiConfig.getFullUrl(ApiConfig.progress)),
@@ -380,6 +463,43 @@ Future<bool> register(String username, String password, {String? avatar}) async 
       debugPrint('Progress update error: $e');
       return false;
     }
+  }
+
+  // Mendapatkan informasi tentang level dan progres pengguna
+  Map<String, dynamic> getUserLevelInfo() {
+    if (_currentUser == null) {
+      return {
+        'level': 1,
+        'score': 0,
+        'pointsToNextLevel': pointsPerLevel,
+        'progressPercent': 0.0,
+        'isMaxLevel': false,
+      };
+    }
+    
+    final int currentScore = _currentUser!.score;
+    final int currentLevel = _currentUser!.level;
+    final int nextLevelPoints = currentLevel * pointsPerLevel;
+    final int prevLevelPoints = (currentLevel - 1) * pointsPerLevel;
+    
+    // Cek apakah pengguna sudah mencapai level maksimum
+    final bool isMaxLevel = currentLevel >= maxLevel;
+    
+    // Menghitung berapa poin lagi untuk naik level
+    final int remainingPoints = isMaxLevel ? 0 : nextLevelPoints - currentScore;
+    
+    // Menghitung persentase kemajuan dalam level saat ini (0.0 - 1.0)
+    final double progressPercent = isMaxLevel ? 
+      1.0 : // Jika sudah max level, progress selalu 100%
+      (currentScore - prevLevelPoints) / pointsPerLevel;
+    
+    return {
+      'level': currentLevel,
+      'score': currentScore,
+      'pointsToNextLevel': remainingPoints,
+      'progressPercent': progressPercent,
+      'isMaxLevel': isMaxLevel,
+    };
   }
 
   Future<bool> changePassword(String currentPassword, String newPassword) async {

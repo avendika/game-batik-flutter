@@ -15,20 +15,19 @@ import '../points/point_collector.dart';
 import '../services/game_setting.dart';
 import '../services/game_menu.dart';
 import '../services/user_service.dart'; // Import UserService
-import 'level3.dart';
+import 'level5.dart';
 import 'LVCompleted/LevelCompleteOverlay.dart' as lvCompleted;
 import '../screens/batik_question_overlay.dart';  
 
-
-class Level2Screen extends flutter.StatefulWidget {
-  const Level2Screen({super.key});
+class Level4Screen extends flutter.StatefulWidget {
+  const Level4Screen({super.key});
 
   @override
-  flutter.State<Level2Screen> createState() => _Level2ScreenState();
+  flutter.State<Level4Screen> createState() => _Level4ScreenState();
 }
 
-class _Level2ScreenState extends flutter.State<Level2Screen> {
-  final Level2Game _game = Level2Game();
+class _Level4ScreenState extends flutter.State<Level4Screen> {
+  final Level4Game _game = Level4Game();
   late final flutter.TextEditingController _answerController;
   bool _showMenuButton = true;
   bool _isPaused = false;
@@ -39,22 +38,21 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
 
   @override
   void initState() {
-    _showMenuButton = false; 
+    _showMenuButton = false;
     super.initState();
     _answerController = flutter.TextEditingController();
     _game.onLevelCompleted = () {
       setState(() {
         _showMenuButton = false;
       });
-
-        // Update user score when level is completed
+      // Update user score when level is completed
       if (_userService.isLoggedIn && _game.collectedPoints > 0) {
         final currentScore = _userService.currentUser?.score ?? 0;
         final newScore = currentScore + _game.collectedPoints;
         _userService.updateProgress(newScore: newScore);
       }
     };
-     // Initialize GameMenu
+   // Initialize GameMenu
     _gameMenu = GameMenu(
       context: context,
       settings: _game.settings,
@@ -69,12 +67,12 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
         flutter.Navigator.pushReplacement(
           context,
           flutter.MaterialPageRoute(
-            builder: (context) => const Level2Screen(),
+            builder: (context) => const Level4Screen(),
           ),
         );
       },
       onExit: () {
-          // Update score before exiting if points were collected
+        // Update score before exiting if points were collected
         if (_userService.isLoggedIn && _game.collectedPoints > 0) {
           final currentScore = _userService.currentUser?.score ?? 0;
           final newScore = currentScore + _game.collectedPoints;
@@ -109,29 +107,29 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
             GameWidget(
               game: _game,
               overlayBuilderMap: {
-                'Level2CompleteOverlay': (flutter.BuildContext context, Level2Game game) {
+                'Level4CompleteOverlay': (flutter.BuildContext context, Level4Game game) {
                   return lvCompleted.LevelCompleteOverlay(
-                    levelNumber: '2',
-                    batikImagePath: 'assets/batik_level/batik_mega_mendung.png',
-                    batikDescription: 'Motif Mega Mendung berasal dari Cirebon dan menggambarkan awan pembawa hujan. '
-                                    'Batik ini memiliki makna kesabaran dan tidak mudah marah. Warna dominannya '
-                                    'biru dengan gradasi yang indah, melambangkan langit yang luas.',
+                    levelNumber: '4',
+                    batikImagePath: 'assets/batik_level/batik_sidomukti.png',
+                    batikDescription: 'Motif Sidomukti berasal dari daerah Solo dan biasanya digunakan dalam upacara pernikahan. '
+                                      'Motif ini melambangkan harapan akan kebahagiaan, kemakmuran, dan kehidupan yang harmonis. '
+                                      'Dengan pola geometris dan simbol-simbol klasik, batik ini mencerminkan keanggunan serta nilai-nilai budaya Jawa yang mendalam.',
                     onBackPressed: () {
-                      game.overlays.remove('Level2CompleteOverlay');
+                      game.overlays.remove('Level4CompleteOverlay');
                       flutter.Navigator.pop(context);
                     },
                     onContinuePressed: () {
-                      game.overlays.remove('Level2CompleteOverlay');
+                      game.overlays.remove('Level4CompleteOverlay');
                       flutter.Navigator.pushReplacement(
                         context,
                         flutter.MaterialPageRoute(
-                          builder: (context) => const Level3Screen(),
+                          builder: (context) => const Level5Screen(),
                         ),
                       );
                     },
                   );
                 },
-                'PointsDisplay': (flutter.BuildContext context, Level2Game game) {
+                'PointsDisplay': (flutter.BuildContext context, Level4Game game) {
                   return flutter.Positioned(
                     top: 20,
                     right: 20,
@@ -141,7 +139,7 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
                     ),
                   );
                 },
-                'AlertMessage': (flutter.BuildContext context, Level2Game game) {
+                'AlertMessage': (flutter.BuildContext context, Level4Game game) {
                   return flutter.Positioned(
                     top: 50,
                     left: 0,
@@ -156,15 +154,15 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
               },
             ),
           
-            if (_showQuestion)
+          if (_showQuestion)
             BatikQuestionOverlay(
               answerController: _answerController,
               onBackPressed: () => flutter.Navigator.pop(context),
               onContinuePressed: () {
-                final answer = _answerController.text.trim().toLowerCase();                       
-                if (answer.contains('kesinambungan') || 
-                    answer.contains('kontinuitas') ||
-                    answer.contains('keberlanjutan')) {
+                final answer = _answerController.text.trim().toLowerCase();
+                if (answer.contains('pengendalian diri') ||
+                    answer.contains('kesucian') ||
+                    answer.contains('keadilan')) {
                   _startGame();
                 } else {
                   flutter.ScaffoldMessenger.of(context).showSnackBar(
@@ -175,11 +173,12 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
                   );
                 }
               },
-              levelNumber: '2',
-              batikImagePath: 'assets/batik_level/batik_parang.png',
-              quizQuestion: 'Apa makna filosofi dari motif Batik Parang?',
-              quizHint: 'Berhubungan dengan kesinambungan hidup',
+              levelNumber: '3',
+              batikImagePath: 'assets/batik_level/batik_kawung.jpg',
+              quizQuestion: 'Apa makna filosofi dari motif Batik Kawung?',
+              quizHint: 'Berhubungan dengan moral, pengendalian diri, dan kesucian',
             ),
+
           
           if (_showMenuButton) 
             _gameMenu.buildMenuButton(() {
@@ -218,7 +217,7 @@ class _Level2ScreenState extends flutter.State<Level2Screen> {
   }
 }
 
-class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection implements PointCollector {
+class Level4Game extends FlameGame with DragCallbacks, HasCollisionDetection implements PointCollector {
   late final TiledComponent map;
   PlayerComponent? player;
   late final JoystickComponent joystick;
@@ -233,7 +232,7 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
 
   static const double tileSize = 64.0;
   late final Vector2 mapDimensions;
-  final Vector2 playerStartPosition = Vector2(1350, 250);
+  final Vector2 playerStartPosition = Vector2(1600, 700);
   final Vector2 playerSize = Vector2(64, 96);
 
     /// Notifikasi untuk level selesai
@@ -241,21 +240,23 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
 
   void collectPoint() {
     collectedPoints++;
+    // Play sound effect using settings
     settings.playSfx('claim.mp3');
+    // Update the points display
     overlays.remove('PointsDisplay');
     overlays.add('PointsDisplay');
 
     // Update user score in real-time whenever a point is collected
     if (userService.isLoggedIn) {
       final currentScore = userService.currentUser?.score ?? 0;
-      final newScore = currentScore + 20; // Add 1 point to score
+      final newScore = currentScore + 40; // Add 1 point to score
       userService.updateProgress(newScore: newScore);
     }
 
     if (collectedPoints >= totalPoints && !_levelCompleted) {
       _levelCompleted = true;
       settings.playSfx('level_complete.mp3');
-      overlays.add('Level2CompleteOverlay');
+      overlays.add('Level4CompleteOverlay');
       onLevelCompleted?.call(); // Panggil callback saat level selesai
     }
   }
@@ -293,7 +294,7 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
   }
 
   Future<void> _loadMap() async {
-    map = await TiledComponent.load('level2.tmx', Vector2.all(tileSize));
+    map = await TiledComponent.load('level4.tmx', Vector2.all(tileSize));
     world.add(map);
 
     mapDimensions = Vector2(
@@ -304,8 +305,8 @@ class Level2Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
 
   Future<void> _createPlayer() async {
     final spriteSheet = SpriteSheet(
-      image: await images.load('Pokemon.png'),
-      srcSize: Vector2(64, 64),
+      image: await images.load('snowgirl.png'),
+      srcSize: Vector2(480, 480),
     );
 
     player = PlayerComponent(

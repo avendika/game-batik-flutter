@@ -14,7 +14,8 @@ import '../points/point_object.dart';
 import '../points/point_collector.dart';
 import '../services/game_setting.dart';
 import '../services/game_menu.dart';
-// import 'level4.dart';
+import '../services/user_service.dart'; // Import UserService
+import 'level4.dart';
 import 'LVCompleted/LevelCompleteOverlay.dart' as lvCompleted;
 import '../screens/batik_question_overlay.dart';  
 
@@ -32,6 +33,8 @@ class _Level3ScreenState extends flutter.State<Level3Screen> {
   bool _isPaused = false;
   bool _showQuestion = true;
   late GameMenu _gameMenu;
+    // Add UserService instance
+  final UserService _userService = UserService();
 
   @override
   void initState() {
@@ -42,6 +45,12 @@ class _Level3ScreenState extends flutter.State<Level3Screen> {
       setState(() {
         _showMenuButton = false;
       });
+              // Update user score when level is completed
+      if (_userService.isLoggedIn && _game.collectedPoints > 0) {
+        final currentScore = _userService.currentUser?.score ?? 0;
+        final newScore = currentScore + _game.collectedPoints;
+        _userService.updateProgress(newScore: newScore);
+      }
     };
    // Initialize GameMenu
     _gameMenu = GameMenu(
@@ -63,6 +72,13 @@ class _Level3ScreenState extends flutter.State<Level3Screen> {
         );
       },
       onExit: () {
+        // Update score before exiting if points were collected
+        if (_userService.isLoggedIn && _game.collectedPoints > 0) {
+          final currentScore = _userService.currentUser?.score ?? 0;
+          final newScore = currentScore + _game.collectedPoints;
+          _userService.updateProgress(newScore: newScore);
+        }
+
         _game.settings.handleScreenTransition('lobby');
         flutter.Navigator.pop(context); // Return to main menu
       },
@@ -94,10 +110,10 @@ class _Level3ScreenState extends flutter.State<Level3Screen> {
                 'Level3CompleteOverlay': (flutter.BuildContext context, Level3Game game) {
                   return lvCompleted.LevelCompleteOverlay(
                     levelNumber: '3',
-                    batikImagePath: 'assets/images/batik_mega_mendung.png',
-                    batikDescription: 'Motif Mega Mendung berasal dari Cirebon dan menggambarkan awan pembawa hujan. '
-                                    'Batik ini memiliki makna kesabaran dan tidak mudah marah. Warna dominannya '
-                                    'biru dengan gradasi yang indah, melambangkan langit yang luas.',
+                    batikImagePath: 'assets/batik_level/batik_kawung.jpg',
+                    batikDescription: 'Motif Kawung adalah salah satu motif batik tertua di Indonesia yang berbentuk seperti irisan buah kawung (sejenis aren). '
+                                      'Motif ini melambangkan kesucian, pengendalian diri, dan keadilan. Batik Kawung sering digunakan dalam lingkungan kerajaan '
+                                      'dan mencerminkan kebijaksanaan serta kekuatan moral.', 
                     onBackPressed: () {
                       game.overlays.remove('Level3CompleteOverlay');
                       flutter.Navigator.pop(context);
@@ -107,7 +123,7 @@ class _Level3ScreenState extends flutter.State<Level3Screen> {
                       flutter.Navigator.pushReplacement(
                         context,
                         flutter.MaterialPageRoute(
-                          builder: (context) => const Level3Screen(),
+                          builder: (context) => const Level4Screen(),
                         ),
                       );
                     },
@@ -158,7 +174,7 @@ class _Level3ScreenState extends flutter.State<Level3Screen> {
                 }
               },
               levelNumber: '3',
-              batikImagePath: 'assets/images/batik_mega_mendung.png',
+              batikImagePath: 'assets/batik_level/batik_mega_mendung.png',
               quizQuestion: 'Apa makna filosofi dari motif Batik Mega Mendung?',
               quizHint: 'Berhubungan dengan emosi dan pengendalian diri',
             ),
@@ -208,6 +224,8 @@ class Level3Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
   int totalPoints = 0;
   int collectedPoints = 0;
   bool _levelCompleted = false;
+  // Add UserService instance
+  final UserService userService = UserService();
 
   final GameSettings settings = GameSettings();
 
@@ -226,6 +244,13 @@ class Level3Game extends FlameGame with DragCallbacks, HasCollisionDetection imp
     // Update the points display
     overlays.remove('PointsDisplay');
     overlays.add('PointsDisplay');
+
+    // Update user score in real-time whenever a point is collected
+    if (userService.isLoggedIn) {
+      final currentScore = userService.currentUser?.score ?? 0;
+      final newScore = currentScore + 30; // Add 1 point to score
+      userService.updateProgress(newScore: newScore);
+    }
 
     if (collectedPoints >= totalPoints && !_levelCompleted) {
       _levelCompleted = true;
